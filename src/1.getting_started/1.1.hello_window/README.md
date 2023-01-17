@@ -40,44 +40,44 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 
 ## Initialize window
 ```shell
-    // Width, Height, Title, ..., ...
-    GLFWwindow* window = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, "LearnOpenGL", NULL, NULL);
-    // Check failure
-    if (window == NULL)
-    {
-        std::cout << "Failed to create GLFW window" << std::endl;
-        glfwTerminate();
-        return -1;
-    }
+// Width, Height, Title, ..., ...
+GLFWwindow* window = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, "LearnOpenGL", NULL, NULL);
+// Check failure
+if (window == NULL)
+{
+    std::cout << "Failed to create GLFW window" << std::endl;
+    glfwTerminate();
+    return -1;
+}
     
-    // This function makes the OpenGL or OpenGL ES context of the specified window current on the calling thread. 
-    // A context must only be made current on a single thread at a time and each thread can have only a single current context at a time.
-    glfwMakeContextCurrent(window);
-    
-    // Call the callback function when the window size changes
-    glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
+// This function makes the OpenGL or OpenGL ES context of the specified window current on the calling thread. 
+// A context must only be made current on a single thread at a time and each thread can have only a single current context at a time.
+glfwMakeContextCurrent(window);
+
+// Call the callback function when the window size changes
+glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 ```
 
 ## Load all OpenGL function pointers
 ```shell
-    // GLAD manage all OpenGL function pointers
-    if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
-    {
-        std::cout << "Failed to initialize GLAD" << std::endl;
-        return -1;
-    }
+// GLAD manage all OpenGL function pointers
+if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
+{
+    std::cout << "Failed to initialize GLAD" << std::endl;
+    return -1;
+}
 ```
 
 ## Render loop
 ```shell
-    while (!glfwWindowShouldClose(window))
-    {
-        // Call callback function to check inputs
-        processInput(window);
+while (!glfwWindowShouldClose(window))
+{
+    // Call callback function to check inputs
+    processInput(window);
 
-        // glfw: swap buffers
-        glfwSwapBuffers(window);
-        // glfw: poll IO events (keys pressed/released, mouse moved etc.)
-        glfwPollEvents();
-    }
+    // glfw: swap buffers
+    glfwSwapBuffers(window);
+    // glfw: poll IO events (keys pressed/released, mouse moved etc.)
+    glfwPollEvents();
+}
 ```
