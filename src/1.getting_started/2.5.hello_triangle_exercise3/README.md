@@ -1,6 +1,6 @@
 ﻿# Hello Triangle
  Draw with two fragment shader
- ```shell
+ ```C++
  //fragmentShader1Source
 #version 330 core
 out vec4 FragColor;
@@ -19,7 +19,7 @@ void main()
  ```
  
 Compile separately
-```shell
+```C++
 unsigned int vertexShader = glCreateShader(GL_VERTEX_SHADER);
 unsigned int fragmentShaderOrange = glCreateShader(GL_FRAGMENT_SHADER);
 unsigned int fragmentShaderYellow = glCreateShader(GL_FRAGMENT_SHADER); 
@@ -43,7 +43,7 @@ glAttachShader(shaderProgramYellow, fragmentShaderYellow);
 glLinkProgram(shaderProgramYellow);
 ```
 Use different GLSL program
-```shell
+```C++
 glUseProgram(shaderProgramOrange);
 glBindVertexArray(VAOs[0]);
 glDrawArrays(GL_TRIANGLES, 0, 3);	
