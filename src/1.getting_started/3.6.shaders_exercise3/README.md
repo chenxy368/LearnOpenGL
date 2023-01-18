@@ -1,12 +1,12 @@
 From vertex shader to fragment shader: 
-```shell
+```GLSL
 ...
 out vec3 ourPosition;
 ...
     ourPosition = aPos;
 ```
 
-```shell
+```GLSL
 ...
 in vec3 ourPosition;
 ...
