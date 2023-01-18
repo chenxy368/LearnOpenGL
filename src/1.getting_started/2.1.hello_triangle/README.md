@@ -6,7 +6,7 @@
  ![NDC](https://user-images.githubusercontent.com/98029669/212930015-27f631a2-53de-4d5d-a4d9-478b76e1429a.png)
  ## Vertex Shader
  To set the output of the vertex shader we have to assign the position data to the predefined gl_Position variable which is a vec4 behind the scenes. 
-```shell
+```GLSL
 #version 330 core
 layout (location = 0) in vec3 aPos;
 
@@ -15,7 +15,7 @@ void main()
     gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);
 }
 ```
-```shell
+```C++
 unsigned int vertexShader = glCreateShader(GL_VERTEX_SHADER);
 glShaderSource(vertexShader, 1, &vertexShaderSource, NULL);
 glCompileShader(vertexShader);
@@ -34,7 +34,7 @@ if (!success)
  ## Fragment Shader
  The fragment shader only requires one output variable and that is a vector of size 4 that defines the final color output that we should calculate ourselves.
  We can declare output values with the out keyword, that we here promptly named FragColor.
-```shell
+```GLSL
 #version 330 core
 out vec4 FragColor;
 
@@ -43,7 +43,7 @@ void main()
     FragColor = vec4(1.0f, 0.5f, 0.2f, 1.0f);
 } 
 ```
-```shell
+```C++
 unsigned int fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
 glShaderSource(fragmentShader, 1, &fragmentShaderSource, NULL);
 glCompileShader(fragmentShader);
@@ -57,7 +57,7 @@ if (!success)
 ```
 
 ## Shader Program Object
-```shell
+```C++
 // link shaders
 unsigned int shaderProgram = glCreateProgram();
 glAttachShader(shaderProgram, vertexShader);
@@ -74,7 +74,7 @@ glDeleteShader(fragmentShader);
 ```
 
 ## Vertex Input
-```shell
+```C++
 float vertices[] = {
     -0.5f, -0.5f, 0.0f, // left  
     0.5f, -0.5f, 0.0f, // right 
@@ -87,7 +87,7 @@ The vertex shader then processes as much vertices as we tell it to from its memo
 We manage this memory via so called vertex buffer objects (VBO) that can store a large number of vertices in the GPU's memory. 
 The advantage of using those buffer objects is that we can send large batches of data all at once to the graphics card, and keep it there if there's enough memory left, without having to send data one vertex at a time. 
 Sending data to the graphics card from the CPU is relatively slow, so wherever we can we try to send as much data as possible at once.
-```shell
+```C++
 unsigned int VBO, VAO;
 glGenVertexArrays(1, &VAO);
 glGenBuffers(1, &VBO);
@@ -108,7 +108,7 @@ GL_DYNAMIC_DRAW: the data is changed a lot and used many times.
 
 
 
-```shell
+```C++
 glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
 glEnableVertexAttribArray(0);
 
@@ -130,7 +130,7 @@ The last parameter is of type void* and thus requires that weird cast. This is t
 ![vertex_attribute_pointer](https://user-images.githubusercontent.com/98029669/212988872-2b77f087-e8b7-43cf-8706-391edfe1b805.png)
 
 ## VAO
-```shell
+```C++
 glUseProgram(shaderProgram);
 glBindVertexArray(VAO); // seeing as we only have a single VAO there's no need to bind it every time, but we'll do so to keep things a bit more organized
 glDrawArrays(GL_TRIANGLES, 0, 3);
