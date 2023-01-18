@@ -1,6 +1,6 @@
 ﻿# Hello Triangle
  Draw two triangles with two VAOs and two VBOs
- ```shell
+ ```C++
 float firstTriangle[] = {
     -0.9f, -0.5f, 0.0f,  // left 
     -0.0f, -0.5f, 0.0f,  // right
@@ -17,7 +17,7 @@ glGenVertexArrays(2, VAOs);
 glGenBuffers(2, VBOs);
  ```
 Remember only bind one VAO in context
-```shell
+```C++
 glBindVertexArray(VAOs[0]);
 glBindBuffer(GL_ARRAY_BUFFER, VBOs[0]);
 glBufferData(GL_ARRAY_BUFFER, sizeof(firstTriangle), firstTriangle, GL_STATIC_DRAW);
@@ -30,7 +30,7 @@ glBufferData(GL_ARRAY_BUFFER, sizeof(secondTriangle), secondTriangle, GL_STATIC_
 glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, (void*)0); // because the vertex data is tightly packed we can also specify 0 as the vertex attribute's stride to let OpenGL figure it out
 glEnableVertexAttribArray(0);
  ```
- ```shell
+ ```C++
 glBindVertexArray(VAOs[0]);
 glDrawArrays(GL_TRIANGLES, 0, 3);
 
