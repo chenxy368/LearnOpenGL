@@ -6,7 +6,7 @@
 ```
 
 ## Callback functions
-```shell
+```C++
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void processInput(GLFWwindow *window);
 
@@ -26,7 +26,7 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 ![glviewport](https://user-images.githubusercontent.com/98029669/212851169-756c7ffb-08c3-4904-8559-b3fcd93637c5.png)
 
 ## Initialize glfw
-```shell
+```C++
     glfwInit();
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
@@ -39,7 +39,7 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 ```
 
 ## Initialize window
-```shell
+```C++
 // Width, Height, Title, ..., ...
 GLFWwindow* window = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, "LearnOpenGL", NULL, NULL);
 // Check failure
@@ -59,7 +59,7 @@ glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 ```
 
 ## Load all OpenGL function pointers
-```shell
+```C++
 // GLAD manage all OpenGL function pointers
 if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
 {
@@ -69,7 +69,7 @@ if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
 ```
 
 ## Render loop
-```shell
+```C++
 while (!glfwWindowShouldClose(window))
 {
     // Call callback function to check inputs
