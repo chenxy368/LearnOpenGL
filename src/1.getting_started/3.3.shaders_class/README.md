@@ -1,6 +1,6 @@
 ﻿# Shaders
 ## Shader Class
-```shell
+```C++
 class Shader
 {
 public:
@@ -19,7 +19,7 @@ public:
 ```
 ## Shader constructer
 Parse shaders
-```shell
+```C++
 Shader(const char* vertexPath, const char* fragmentPath)
 {
     // 1. retrieve the vertex/fragment source code from filePath
@@ -55,7 +55,7 @@ Shader(const char* vertexPath, const char* fragmentPath)
     [...]
 ```
 Compile shaders
-```shell
+```C++
 // 2. compile shaders
 unsigned int vertex, fragment;
 int success;
@@ -94,14 +94,14 @@ glDeleteShader(vertex);
 glDeleteShader(fragment);
 ```
 ## Use Function
-```shell
+```C++
 void use() 
 { 
     glUseProgram(ID);
 }  
 ```
 ## Set Uniforms
-```shell
+```C++
 void setBool(const std::string &name, bool value) const
 {
     glUniform1i(glGetUniformLocation(ID, name.c_str()), (int)value); 
@@ -116,7 +116,7 @@ void setFloat(const std::string &name, float value) const
 } 
 ```
 ## In the loop
-```shell
+```C++
 // Init with path to vertex shader and fragment shader
 Shader ourShader("path/to/shaders/shader.vs", "path/to/shaders/shader.fs");
 [...]
