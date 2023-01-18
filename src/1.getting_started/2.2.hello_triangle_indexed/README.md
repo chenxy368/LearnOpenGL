@@ -1,7 +1,7 @@
 ﻿# Hello Triangle
  ## EBO
 From
- ```shell
+ ```C++
 float vertices[] = {
     // first triangle
      0.5f,  0.5f, 0.0f,  // top right
@@ -14,7 +14,7 @@ float vertices[] = {
 }; 
 ```
 To
- ```shell
+ ```C++
 float vertices[] = {
      0.5f,  0.5f, 0.0f,  // top right
      0.5f, -0.5f, 0.0f,  // bottom right
@@ -27,7 +27,7 @@ unsigned int indices[] = {  // note that we start from 0!
 };  
 ```
 
- ```shell
+ ```C++
 unsigned int EBO;
 glGenBuffers(1, &EBO);
 
@@ -45,7 +45,7 @@ glBindBuffer(GL_ARRAY_BUFFER, 0);
 glBindVertexArray(0); 
 ```
 
-```shell
+```C++
 glUseProgram(shaderProgram);
 // seeing as we only have a single VAO there's no need to bind it every time, 
 // but we'll do so to keep things a bit more organized
