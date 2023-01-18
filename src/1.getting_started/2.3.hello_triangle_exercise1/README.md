@@ -1,6 +1,6 @@
 ﻿# Hello Triangle
  Draw two triangles with six vertices
- ```shell
+ ```C++
  float vertices[] = {
     // first triangle
     -0.9f, -0.5f, 0.0f,  // left 
@@ -13,6 +13,6 @@
 }; 
  ```
  
-```shell
+```C++
 glDrawArrays(GL_TRIANGLES, 0, 6);
  ```
