@@ -1,6 +1,6 @@
 ﻿# Shaders
  ## Shaders Template
- ```shell
+ ```GLSL
  #version version_number
 in type in_variable_name;
 in type in_variable_name;
@@ -23,7 +23,7 @@ bvecn: a vector of n booleans.
 ivecn: a vector of n integers.  
 uvecn: a vector of n unsigned integers.  
 dvecn: a vector of n double components.  
-```shell
+```GLSL
 vec2 someVec;
 vec4 differentVec = someVec.xyxx;
 vec3 anotherVec = differentVec.zyw;
@@ -36,7 +36,7 @@ vec4 otherResult = vec4(result.xyz, 1.0);
 
 ## In and Out
 Vertex shader to fragment shader: vertexColor
-```shell
+```GLSL
 #version 330 core
 layout (location = 0) in vec3 aPos; // the position variable has attribute position 0
   
@@ -48,7 +48,7 @@ void main()
     vertexColor = vec4(0.5, 0.0, 0.0, 1.0); // set the output variable to a dark-red color
 }
 ```
-```shell
+```GLSL
 #version 330 core
 out vec4 FragColor;
   
@@ -62,7 +62,7 @@ void main()
 
 ## Uniform
 Uniforms are another way to pass data from our application on the CPU to the shaders on the GPU.
-```shell
+```GLSL
 #version 330 core
 out vec4 FragColor;
   
@@ -84,7 +84,7 @@ ui: the function expects an unsigned int as its value.
 fv: the function expects a float vector/array as its value.  
 Whenever you want to configure an option of OpenGL simply pick the overloaded function that corresponds with your type. 
 In our case we want to set 4 floats of the uniform individually so we pass our data via glUniform4f (note that we also could've used the fv version).  
-```shell
+```C++
 double timeValue = glfwGetTime();
 float greenValue = static_cast<float>(sin(timeValue) / 2.0 + 0.5);
 // Find uniform position by its name
