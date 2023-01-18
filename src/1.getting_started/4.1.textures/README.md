@@ -76,3 +76,61 @@ glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
 glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 ```
+## Applying Textures
+Add texture cooradinates to vertices attributes array:
+```C++
+float vertices[] = {
+    // positions          // colors           // texture coords
+     0.5f,  0.5f, 0.0f,   1.0f, 0.0f, 0.0f,   1.0f, 1.0f,   // top right
+     0.5f, -0.5f, 0.0f,   0.0f, 1.0f, 0.0f,   1.0f, 0.0f,   // bottom right
+    -0.5f, -0.5f, 0.0f,   0.0f, 0.0f, 1.0f,   0.0f, 0.0f,   // bottom left
+    -0.5f,  0.5f, 0.0f,   1.0f, 1.0f, 0.0f,   0.0f, 1.0f    // top left 
+};
+```
+![vertex_attribute_pointer_interleaved_textures](https://user-images.githubusercontent.com/98029669/213072258-2382b6d9-f3bb-42e1-8b72-21b910a9fade.png)
+Another pointer for texture:
+```C++
+glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
+glEnableVertexAttribArray(2);
+```
+Color and texture from vectex shader to fragment shader: aColor and aTexCoord
+```GLSL
+#version 330 core
+layout (location = 0) in vec3 aPos;
+layout (location = 1) in vec3 aColor;
+layout (location = 2) in vec2 aTexCoord;
+
+out vec3 ourColor;
+out vec2 TexCoord;
+
+void main()
+{
+    gl_Position = vec4(aPos, 1.0);
+    ourColor = aColor;
+    TexCoord = aTexCoord;
+}
+```
+```GLSL
+#version 330 core
+out vec4 FragColor;
+  
+in vec3 ourColor;
+in vec2 TexCoord;
+
+uniform sampler2D ourTexture;
+
+void main()
+{
+    FragColor = texture(ourTexture, TexCoord);
+}
+```
+In render loop
+```C++
+// bind Texture
+glBindTexture(GL_TEXTURE_2D, texture);
+
+// render container
+ourShader.use();
+glBindVertexArray(VAO);
+glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+```
