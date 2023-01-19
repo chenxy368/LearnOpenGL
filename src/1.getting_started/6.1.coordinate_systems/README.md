@@ -35,5 +35,35 @@ glm::mat4 proj = glm::perspective(glm::radians(45.0f), (float)width/(float)heigh
 Its first parameter defines the fov value, that stands for field of view and sets how large the viewspace is. 
 For a realistic view it is usually set to 45 degrees, but for more doom-style results you could set it to a higher value. 
 The second parameter sets the aspect ratio which is calculated by dividing the viewport's width by its height. 
-The third and fourth parameter set the near and far plane of the frustum. 
+The third and fourth parameter set the near and far plane of the frustum.  
+![perspective1](https://user-images.githubusercontent.com/98029669/213559965-626958bd-894d-48b3-ab97-2100e12b087d.jpg)  
+![perspective2](https://user-images.githubusercontent.com/98029669/213559978-f7a0022d-6e00-4f74-95ad-33ac4b2f01b1.jpg)
+## Combination
+![viewcombine](https://user-images.githubusercontent.com/98029669/213560168-6a3b7d88-a8e1-4e73-8dd4-baf2b8251348.png)  
+Add to shader
+```GLSL
+#version 330 core
+layout (location = 0) in vec3 aPos;
+...
+uniform mat4 model;
+uniform mat4 view;
+uniform mat4 projection;
 
+void main()
+{
+    gl_Position = projection * view * model * vec4(aPos, 1.0);
+    ...
+}
+```
+```C++
+glm::mat4 model;
+model = glm::rotate(model, glm::radians(-55.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+glm::mat4 view;
+view = glm::translate(view, glm::vec3(0.0f, 0.0f, -3.0f));
+glm::mat4 projection;
+projection = glm::perspective(glm::radians(45.0f), screenWidth / screenHeight, 0.1f, 100.0f);
+...
+int modelLoc = glGetUniformLocation(ourShader.ID, "model"));
+glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+... // same for projection and translate
+```
