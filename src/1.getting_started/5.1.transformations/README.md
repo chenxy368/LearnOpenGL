@@ -61,3 +61,4 @@ trans = glm::scale(trans, glm::vec3(0.5, 0.5, 0.5));
     unsigned int transformLoc = glGetUniformLocation(ourShader.ID, "transform");
     glUniformMatrix4fv(transformLoc, 1, GL_FALSE, glm::value_ptr(trans));
 ```
+In most case, the sequence of transformations should flow: scale->rotation->translate, i.e. (translate * rotation * scale) * v 
