@@ -1,6 +1,21 @@
 # learnopengl.com code repository
 Contains code samples for all chapters of Learn OpenGL and [https://learnopengl.com](https://learnopengl.com). 
 
+## My notes
+Chapter 1: [Chapter 1](https://github.com/chenxy368/LearnOpenGL/tree/master/src/1.getting_started)  
+1.1 hellow window: create a window [1.1.1(Basic)](https://github.com/chenxy368/LearnOpenGL/tree/master/src/1.getting_started/1.1.hello_window) [1.1.2(Remember clear buffer)](https://github.com/chenxy368/LearnOpenGL/tree/master/src/1.getting_started/1.2.hello_window_clear)  
+1.2 hellow triangle: draw a triangle [1.2.1(Basic)](https://github.com/chenxy368/LearnOpenGL/tree/master/src/1.getting_started/2.1.hello_triangle) 
+[1.2.2(EBO)](https://github.com/chenxy368/LearnOpenGL/tree/master/src/1.getting_started/2.2.hello_triangle_indexed) 
+[1.2.3(Exercise1)](https://github.com/chenxy368/LearnOpenGL/tree/master/src/1.getting_started/2.3.hello_triangle_exercise1) 
+[1.2.4(Exercise2)](https://github.com/chenxy368/LearnOpenGL/tree/master/src/1.getting_started/2.4.hello_triangle_exercise2)
+[1.2.5(Exercise3)](https://github.com/chenxy368/LearnOpenGL/tree/master/src/1.getting_started/2.5.hello_triangle_exercise3)  
+1.3 shaders: learn basic shaders [1.3.1(Uniform)](https://github.com/chenxy368/LearnOpenGL/tree/master/src/1.getting_started/3.1.shaders_uniform)
+[1.3.2(Add one more vertex attribute and modify shaders)](https://github.com/chenxy368/LearnOpenGL/tree/master/src/1.getting_started/3.2.shaders_interpolation) 
+[1.3.3(A class for loading and compile shaders)](https://github.com/chenxy368/LearnOpenGL/tree/master/src/1.getting_started/3.3.shaders_class) 
+[1.3.4(Exercise1)](https://github.com/chenxy368/LearnOpenGL/tree/master/src/1.getting_started/3.4.shaders_exercise1)
+[1.3.5(Exercise2)](https://github.com/chenxy368/LearnOpenGL/tree/master/src/1.getting_started/3.5.shaders_exercise2)
+[1.3.6(Exercise3)](https://github.com/chenxy368/LearnOpenGL/tree/master/src/1.getting_started/3.6.shaders_exercise3)
+
 ## Windows building
 All relevant libraries are found in /libs and all DLLs found in /dlls (pre-)compiled for Windows. 
 The CMake script knows where to find the libraries so just run CMake script and generate project of choice.
