@@ -30,6 +30,7 @@ glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
 glEnableVertexAttribArray(0);
 ```
 ## Change Shader
+Plus light color
 ```GLSL
 #version 330 core
 out vec4 FragColor;
@@ -41,4 +42,33 @@ void main()
 {
     FragColor = vec4(lightColor * objectColor, 1.0);
 }
+```
+```C++
+// set uniform
+lightingShader.use();
+lightingShader.setVec3("objectColor", 1.0f, 0.5f, 0.31f);
+lightingShader.setVec3("lightColor",  1.0f, 1.0f, 1.0f);
+```
+## Set light cube
+For the light cube, just set wight.
+```GLSL
+#version 330 core
+out vec4 FragColor;
+
+void main()
+{
+    FragColor = vec4(1.0);
+}
+```
+```C++
+glm::vec3 lightPos(1.2f, 1.0f, 2.0f);
+...
+model = glm::mat4();
+model = glm::translate(model, lightPos);
+model = glm::scale(model, glm::vec3(0.2f));
+...
+lampShader.use();
+...
+glBindVertexArray(lightVAO);
+glDrawArrays(GL_TRIANGLES, 0, 36);
 ```
