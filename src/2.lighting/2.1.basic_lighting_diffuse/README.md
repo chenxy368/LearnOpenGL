@@ -87,6 +87,7 @@ __Fragment Shader:__
 4. First compute ambent color as shown before with multipling ambientStrength  
 5. Compute dot product as coeffiecient(use max to filter negative) and multiply light color to represent the diffuse  
 6. result = (ambient + diffuse) * objectColor  
+P.S. Since we do not set FragPos, the FragPos always equals (0, 0, 0), which means parallel light.
 ```GLSL
 #version 330 core
 out vec4 FragColor;
