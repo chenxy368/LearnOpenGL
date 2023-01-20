@@ -59,18 +59,26 @@ glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
 glEnableVertexAttribArray(0);
 ```
 Add arguments in shaders  
+P.S. FragPos is computed based on model metrix and original position, which is its position in world space
 __Vectex Shader:__
 ```GLSL
 #version 330 core
 layout (location = 0) in vec3 aPos;
 layout (location = 1) in vec3 aNormal;
-...
+
+out vec3 FragPos;
 out vec3 Normal;
+
+uniform mat4 model;
+uniform mat4 view;
+uniform mat4 projection;
 
 void main()
 {
-    gl_Position = projection * view * model * vec4(aPos, 1.0);
-    Normal = aNormal;
+    FragPos = vec3(model * vec4(aPos, 1.0));
+    Normal = aNormal;  
+    
+    gl_Position = projection * view * vec4(FragPos, 1.0);
 }
 ```
 __Fragment Shader:__
@@ -87,7 +95,6 @@ __Fragment Shader:__
 4. First compute ambent color as shown before with multipling ambientStrength  
 5. Compute dot product as coeffiecient(use max to filter negative) and multiply light color to represent the diffuse  
 6. result = (ambient + diffuse) * objectColor  
-P.S. Since we do not set FragPos, the FragPos always equals (0, 0, 0), which means parallel light.
 ```GLSL
 #version 330 core
 out vec4 FragColor;
