@@ -84,7 +84,10 @@ void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
 }
 ```
 ```C++
-projection = glm::perspective(glm::radians(fov), 800.0f / 600.0f, 0.1f, 100.0f);
+// this set both cursor and scroll detected
+glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 // Regist Callback
 glfwSetScrollCallback(window, scroll_callback);
+...
+projection = glm::perspective(glm::radians(fov), 800.0f / 600.0f, 0.1f, 100.0f);
 ```
