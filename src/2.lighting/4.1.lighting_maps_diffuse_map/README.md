@@ -81,10 +81,7 @@ void main()
 ```
 ## Bind Texture and Pass Uniform
 ```C++
-glBindVertexArray(cubeVAO);
-glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
-...
-// Here we need the position attribute(pointer 0) to get texture on that position
+// Here we need the position attribute(pointer 0) to get texture 0
 lightingShader.setInt("material.diffuse", 0);
 ...
 glActiveTexture(GL_TEXTURE0);
