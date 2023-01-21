@@ -17,10 +17,49 @@ Second, if the model matrix would perform a non-uniform scale, the vertices woul
 to the surface anymore. The following image shows the effect such a model matrix (with non-uniform scaling) has on a normal vector:  
 ![basic_lighting_normal_transformation](https://user-images.githubusercontent.com/98029669/213773620-573efd1f-5c4f-4754-87dc-b127b40642e3.png)  
 Obviously, you only need to rotate the vector after scaling.  
-__inverse translate to solve this problem__  
-![inverse_trans](https://user-images.githubusercontent.com/98029669/213807198-a970683b-a466-409c-be51-555d528d07d7.png)
+__inverse translate to solve this problem__   
 ```GLSL
 Normal = mat3(transpose(inverse(model))) * aNormal;
 ```
 Remember first change to mat3 to truncate translation part(last row and column).
 ## Specular Highlight
+![specular](https://user-images.githubusercontent.com/98029669/213830798-d1807d26-3229-4349-8c13-9b09cceee8e3.png)
+1. Compute view vector  
+2. Compute reflect vector  
+3. Compute specular intensity
+4. Compute color, remember multiply a strength coefficient
+```GLSL
+#version 330 core
+out vec4 FragColor;
+
+in vec3 Normal;  
+in vec3 FragPos;  
+  
+uniform vec3 lightPos; 
+uniform vec3 viewPos; 
+uniform vec3 lightColor;
+uniform vec3 objectColor;
+
+void main()
+{
+    // ambient
+    float ambientStrength = 0.1;
+    vec3 ambient = ambientStrength * lightColor;
+  	
+    // diffuse 
+    vec3 norm = normalize(Normal);
+    vec3 lightDir = normalize(lightPos - FragPos);
+    float diff = max(dot(norm, lightDir), 0.0);
+    vec3 diffuse = diff * lightColor;
+    
+    // specular
+    float specularStrength = 0.5;
+    vec3 viewDir = normalize(viewPos - FragPos);
+    vec3 reflectDir = reflect(-lightDir, norm);  
+    float spec = pow(max(dot(viewDir, reflectDir), 0.0), 32);
+    vec3 specular = specularStrength * spec * lightColor;  
+        
+    vec3 result = (ambient + diffuse + specular) * objectColor;
+    FragColor = vec4(result, 1.0);
+} 
+```
