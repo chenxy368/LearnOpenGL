@@ -28,7 +28,7 @@ void main()
     vs_out.normal = normalize(vec3(vec4(normalMatrix * aNormal, 0.0)));
 }
 ```
-__Fragment Shader__
+__Geometry Shader__
 ```GLSL
 #version 330 core
 layout (triangles) in;
