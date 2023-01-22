@@ -149,5 +149,210 @@ void main()
     gl_FragDepth = gl_FragCoord.z + 0.1;
 }  
 ```
+## Interface Blocks
+Interface blocks that allows us to group variables together.   
+__Vertex Shader__
+```GLSL
+#version 330 core
+layout (location = 0) in vec3 aPos;
+layout (location = 1) in vec2 aTexCoords;
 
+uniform mat4 model;
+uniform mat4 view;
+uniform mat4 projection;
 
+out VS_OUT
+{
+    vec2 TexCoords;
+} vs_out;
+
+void main()
+{
+    gl_Position = projection * view * model * vec4(aPos, 1.0);    
+    vs_out.TexCoords = aTexCoords;
+}  
+```
+__Fragment Shader__  
+```GLSL
+#version 330 core
+layout (location = 0) in vec3 aPos;
+layout (location = 1) in vec2 aTexCoords;
+
+uniform mat4 model;
+uniform mat4 view;
+uniform mat4 projection;
+
+out VS_OUT
+{
+    vec2 TexCoords;
+} vs_out;
+
+void main()
+{
+    gl_Position = projection * view * model * vec4(aPos, 1.0);    
+    vs_out.TexCoords = aTexCoords;
+}  
+```
+## Uniform Buffer Objects(UBO)
+OpenGL gives us a tool called uniform buffer objects that allow us to declare a set of global uniform variables that remain the same over any number of shader programs. When using uniform buffer objects we set the relevant uniforms only once in fixed GPU memory. __I.e. the global const__  
+```GLSL
+#version 330 core
+layout (location = 0) in vec3 aPos;
+
+layout (std140) uniform Matrices
+{
+    mat4 projection;
+    mat4 view;
+};
+
+uniform mat4 model;
+
+void main()
+{
+    gl_Position = projection * view * model * vec4(aPos, 1.0);
+}  
+```
+In most of our samples we set a projection and view uniform matrix every frame for each shader we're using. This is a perfect example of where uniform buffer objects become useful since now we only have to store these matrices once.  
+The layout (std140) statement represents the currently defined uniform block uses a specific memory layout for its content; this statement sets the uniform block layout.
+## Uniform Block Layout
+The content of a uniform block is a reserved piece of global GPU memory. Because this piece of memory holds no information on what kind of data it holds, we need to tell OpenGL what parts of the memory correspond to which uniform variables in the shader.
+
+The size of each of the elements is clearly stated in OpenGL and directly corresponds to C++ data types. 
+What OpenGL doesn't clearly state is the __spacing between the variables__. This allows the hardware to position or pad variables as it sees fit. The hardware is able to place a vec3 adjacent to a float for example. 
+
+By default, GLSL uses a __uniform memory layout called a shared layout__ - shared because once the offsets are defined by the hardware, they are consistently shared between multiple programs. With a shared layout GLSL is allowed to __reposition the uniform variables__ for optimization as long as the variables' order remains intact.
+
+Because we don't know at what offset each uniform variable will be we don't know how to precisely fill our uniform buffer. We can __query this information with functions like glGetUniformIndices__.
+
+The general practice however is to not use the shared layout, but to __use the std140 layout__. The std140 layout __explicitly states the memory layout for each variable type by standardizing their respective offsets__ governed by a set of rules. 
+
+Each variable has a __base alignment__ equal to the space a variable takes __(including padding)__ within a uniform block using the __std140__ layout rules. For each variable, we __calculate its aligned offset__: the byte offset of a variable from the start of the block. 
+
+Each variable type in GLSL such as int, float and bool are defined to be four-byte quantities with each entity of 4 bytes represented as N. Check alignment below:  
+![1674417527269](https://user-images.githubusercontent.com/98029669/213937505-69cb86a2-92f2-4e31-a062-0ad1c6a07c17.png)  
+Note: vec4 is 16 bytes for int, float and bool.  
+An example
+```GLSL
+layout (std140) uniform ExampleBlock
+{
+                     // base alignment  // aligned offset
+    float value;     // 4               // 0 
+    vec3 vector;     // 16              // 16  (offset must be multiple of 16 so 4->16)
+    mat4 matrix;     // 16              // 32  (column 0)
+                     // 16              // 48  (column 1)
+                     // 16              // 64  (column 2)
+                     // 16              // 80  (column 3)
+    float values[3]; // 16              // 96  (values[0])
+                     // 16              // 112 (values[1])
+                     // 16              // 128 (values[2])
+    bool boolean;    // 4               // 144
+    int integer;     // 4               // 148
+}; 
+```
+Apart __shared__ layout, the other remaining layout being __packed__. When using the packed layout, there is __no guarantee that the layout remains the same between programs (not shared, shared is the same between different program)__ because it allows the compiler to optimize uniform variables away from the uniform block which may differ per shader.
+## Using UBO
+```C++
+unsigned int uboExampleBlock;
+glGenBuffers(1, &uboExampleBlock);
+glBindBuffer(GL_UNIFORM_BUFFER, uboExampleBlock);
+glBufferData(GL_UNIFORM_BUFFER, 152, NULL, GL_STATIC_DRAW); // allocate 152 bytes of memory
+glBindBuffer(GL_UNIFORM_BUFFER, 0);
+```
+Now whenever we want to update or insert data into the buffer, we __bind to uboExampleBlock and use glBufferSubData__ to update its memory. We only have to update this uniform buffer once, and __all shaders that use this buffer__ now use its updated data.
+
+How does OpenGL know what uniform buffers correspond to which uniform blocks?
+In the OpenGL context there is a number of binding points defined where we can link a uniform buffer to. 
+![image](https://user-images.githubusercontent.com/98029669/213937709-624c7371-351d-4217-9669-d8d6bddacc6a.png)  
+Because shader A and shader B both have a uniform block __linked to the same binding point 0__, their uniform blocks share the same uniform data found in uboMatrices; a requirement being that __both shaders defined the same Matrices uniform block__.
+
+```C++
+unsigned int lights_index = glGetUniformBlockIndex(shaderA.ID, "Lights"); // Get target shader ID and the uniform's ID  
+glUniformBlockBinding(shaderA.ID, lights_index, 2); // Bind to the NO.2 UBO data channel
+```
+
+P.S. From OpenGL version 4.2, you can direct declare in shader
+```GLSL
+layout(std140, binding = 2) uniform Lights { ... };
+```
+
+Bind an UBO to the UBO data channel(binding point)
+```C++
+glBindBufferBase(GL_UNIFORM_BUFFER, 2, uboExampleBlock); 
+// or
+glBindBufferRange(GL_UNIFORM_BUFFER, 2, uboExampleBlock, 0, 152);
+```
+The function __glBindbufferBase__ expects a __target__, a __binding point__ index and a __uniform buffer object__. This function links uboExampleBlock to binding point 2; from this point on, both sides of the binding point are linked. You can also use __glBindBufferRange__ that expects __an extra offset and size parameter__ - this way you can bind only __a specific range of__ the uniform buffer to a binding point. Using glBindBufferRange you could __have multiple different uniform blocks linked to a single uniform buffer object.__
+
+To update data in UBO
+```C++
+glBindBuffer(GL_UNIFORM_BUFFER, uboExampleBlock); // first bind target UBO
+int b = true; // bools in GLSL are represented as 4 bytes, so we store it in an integer
+glBufferSubData(GL_UNIFORM_BUFFER, 144, 4, &b);  // target, offset, size, location of variable
+glBindBuffer(GL_UNIFORM_BUFFER, 0); // back to default
+```
+
+## An Example of Using UBO
+__Vertex Shader__
+```GLSL
+#version 330 core
+layout (location = 0) in vec3 aPos;
+
+layout (std140) uniform Matrices
+{
+    mat4 projection;
+    mat4 view;
+}; // uniform to store global projection and view matrices
+uniform mat4 model;
+
+void main()
+{
+    gl_Position = projection * view * model * vec4(aPos, 1.0);
+}
+```
+Bind all uniform to the same bingding point.
+```C++
+unsigned int uniformBlockIndexRed    = glGetUniformBlockIndex(shaderRed.ID, "Matrices");
+unsigned int uniformBlockIndexGreen  = glGetUniformBlockIndex(shaderGreen.ID, "Matrices");
+unsigned int uniformBlockIndexBlue   = glGetUniformBlockIndex(shaderBlue.ID, "Matrices");
+unsigned int uniformBlockIndexYellow = glGetUniformBlockIndex(shaderYellow.ID, "Matrices");  
+
+glUniformBlockBinding(shaderRed.ID,    uniformBlockIndexRed, 0);
+glUniformBlockBinding(shaderGreen.ID,  uniformBlockIndexGreen, 0);
+glUniformBlockBinding(shaderBlue.ID,   uniformBlockIndexBlue, 0);
+glUniformBlockBinding(shaderYellow.ID, uniformBlockIndexYellow, 0);
+```
+Create an UBO and bind to the 0 binding point
+```C++
+unsigned int uboMatrices
+glGenBuffers(1, &uboMatrices);
+
+glBindBuffer(GL_UNIFORM_BUFFER, uboMatrices);
+glBufferData(GL_UNIFORM_BUFFER, 2 * sizeof(glm::mat4), NULL, GL_STATIC_DRAW);
+glBindBuffer(GL_UNIFORM_BUFFER, 0);
+
+glBindBufferRange(GL_UNIFORM_BUFFER, 0, uboMatrices, 0, 2 * sizeof(glm::mat4));
+```
+Fill the buffer. (Here, we keep the field of view value constant of the projection matrix (so no more camera zoom))
+```C++
+glm::mat4 projection = glm::perspective(glm::radians(45.0f), (float)width/(float)height, 0.1f, 100.0f); // Fixed FOV
+glBindBuffer(GL_UNIFORM_BUFFER, uboMatrices);
+glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(glm::mat4), glm::value_ptr(projection));
+glBindBuffer(GL_UNIFORM_BUFFER, 0);
+
+glm::mat4 view = camera.GetViewMatrix();           
+glBindBuffer(GL_UNIFORM_BUFFER, uboMatrices);
+glBufferSubData(GL_UNIFORM_BUFFER, sizeof(glm::mat4), sizeof(glm::mat4), glm::value_ptr(view));
+glBindBuffer(GL_UNIFORM_BUFFER, 0);
+```
+Draw four cubes and their shaders shared the same porjection and view matrices
+```C++
+glBindVertexArray(cubeVAO);
+shaderRed.use();
+glm::mat4 model = glm::mat4(1.0f);
+model = glm::translate(model, glm::vec3(-0.75f, 0.75f, 0.0f));	// move top-left
+shaderRed.setMat4("model", model);
+glDrawArrays(GL_TRIANGLES, 0, 36);        
+// ... draw Green Cube
+// ... draw Blue Cube
+// ... draw Yellow Cube	 
+```
