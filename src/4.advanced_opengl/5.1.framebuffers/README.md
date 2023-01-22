@@ -220,3 +220,84 @@ glDrawArrays(GL_TRIANGLES, 0, 6);
 Note: 
 1. Since each framebuffer we're using has its own set of buffers, we want to clear each of those buffers with the appropriate bits set by calling glClear. 
 2. When drawing the quad, we're disabling depth testing since we want to make sure the quad always renders in front of everything else; we'll have to enable depth testing again when we draw the normal scene though.
+
+## Post-processing
+__Some computer vision process, now we are working on a image.__
+__Inversion:__
+```GLSL
+void main()
+{
+    FragColor = vec4(vec3(1.0 - texture(screenTexture, TexCoords)), 1.0);
+}  
+```
+![image](https://user-images.githubusercontent.com/98029669/213900150-6175a244-1756-41ad-ab24-4e668f6b3c55.png)  
+__Grayscale:__
+```GLSL
+void main()
+{
+    FragColor = texture(screenTexture, TexCoords);
+    float average = 0.2126 * FragColor.r + 0.7152 * FragColor.g + 0.0722 * FragColor.b;
+    FragColor = vec4(average, average, average, 1.0);
+} 
+```
+![image](https://user-images.githubusercontent.com/98029669/213900169-0432a67f-4978-4c82-978b-07a216f0e9ba.png)
+__Kernel effects:__
+Convolution matrix/kernel
+```GLSL
+const float offset = 1.0 / 300.0;  
+
+void main()
+{
+    vec2 offsets[9] = vec2[](
+        vec2(-offset,  offset), // top-left
+        vec2( 0.0f,    offset), // top-center
+        vec2( offset,  offset), // top-right
+        vec2(-offset,  0.0f),   // center-left
+        vec2( 0.0f,    0.0f),   // center-center
+        vec2( offset,  0.0f),   // center-right
+        vec2(-offset, -offset), // bottom-left
+        vec2( 0.0f,   -offset), // bottom-center
+        vec2( offset, -offset)  // bottom-right    
+    );
+
+    float kernel[9] = float[](
+        -1, -1, -1,
+        -1,  9, -1,
+        -1, -1, -1
+    );
+    
+    vec3 sampleTex[9];
+    for(int i = 0; i < 9; i++)
+    {
+        sampleTex[i] = vec3(texture(screenTexture, TexCoords.st + offsets[i]));
+    }
+    vec3 col = vec3(0.0);
+    for(int i = 0; i < 9; i++)
+        col += sampleTex[i] * kernel[i];
+    
+    FragColor = vec4(col, 1.0);
+}  
+```
+![image](https://user-images.githubusercontent.com/98029669/213900203-f3b9bf38-16be-410f-8bda-d519dfd98e23.png)  
+__Blur:__  
+A blur kernel:
+```GLSL
+float kernel[9] = float[](
+    1.0 / 16, 2.0 / 16, 1.0 / 16,
+    2.0 / 16, 4.0 / 16, 2.0 / 16,
+    1.0 / 16, 2.0 / 16, 1.0 / 16  
+);
+```
+![image](https://user-images.githubusercontent.com/98029669/213900223-06aa077d-bf29-426e-a7b3-8ac8b6f965a8.png)  
+__Edge detection:__
+An edge detection kernel:
+```GLSL
+float kernel[9] = float[](
+    1.0, 1.0, 1.0,
+    1.0, -8.0, 1.0,
+    1.0, 1.0, 1.0,
+);
+```
+![image](https://user-images.githubusercontent.com/98029669/213900276-c3b87ebd-567d-4c88-afb5-025ec9ca6356.png)  
+
+
