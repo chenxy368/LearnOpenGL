@@ -222,8 +222,8 @@ Note:
 2. When drawing the quad, we're disabling depth testing since we want to make sure the quad always renders in front of everything else; we'll have to enable depth testing again when we draw the normal scene though.
 
 ## Post-processing
-__Some computer vision process, now we are working on a image.__
-__Inversion:__
+__Some computer vision process, now we are working on a image.__  
+__Inversion:__  
 ```GLSL
 void main()
 {
@@ -231,7 +231,7 @@ void main()
 }  
 ```
 ![image](https://user-images.githubusercontent.com/98029669/213900150-6175a244-1756-41ad-ab24-4e668f6b3c55.png)  
-__Grayscale:__
+__Grayscale:__  
 ```GLSL
 void main()
 {
@@ -240,8 +240,8 @@ void main()
     FragColor = vec4(average, average, average, 1.0);
 } 
 ```
-![image](https://user-images.githubusercontent.com/98029669/213900169-0432a67f-4978-4c82-978b-07a216f0e9ba.png)
-__Kernel effects:__
+![image](https://user-images.githubusercontent.com/98029669/213900169-0432a67f-4978-4c82-978b-07a216f0e9ba.png)  
+__Kernel effects:__  
 Convolution matrix/kernel
 ```GLSL
 const float offset = 1.0 / 300.0;  
@@ -289,7 +289,7 @@ float kernel[9] = float[](
 );
 ```
 ![image](https://user-images.githubusercontent.com/98029669/213900223-06aa077d-bf29-426e-a7b3-8ac8b6f965a8.png)  
-__Edge detection:__
+__Edge detection:__  
 An edge detection kernel:
 ```GLSL
 float kernel[9] = float[](
