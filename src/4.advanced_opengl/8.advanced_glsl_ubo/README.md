@@ -70,3 +70,84 @@ glBindBuffer(GL_COPY_WRITE_BUFFER, vbo2);
 glCopyBufferSubData(GL_ARRAY_BUFFER, GL_COPY_WRITE_BUFFER, 0, 0, sizeof(vertexData));
 ```
 # Advanced GLSL
+## GLSL's Built-in Variables
+There are a few extra variables defined by GLSL prefixed with gl_ that give us an extra means to gather and/or write data. We've already seen two of them in the chapters so far: gl_Position that is the output vector of the vertex shader, and the fragment shader's gl_FragCoord.
+### Vertex shader variables
+__gl_PointSize__  
+One of the render primitives we're able to choose from is GL_POINTS in which case each single vertex is a primitive and rendered as a point. We can also influence this value in the vertex shader.  
+To enable  
+```C++
+glEnable(GL_PROGRAM_POINT_SIZE);
+```
+```GLSL
+void main()
+{
+    gl_Position = projection * view * model * vec4(aPos, 1.0);    
+    gl_PointSize = gl_Position.z; // Farther, smaller   
+}
+```  
+__gl_VertexID__  
+The integer variable gl_VertexID holds the current ID of the vertex we're drawing. When doing indexed rendering (with glDrawElements) this variable holds the current index of the vertex we're drawing.  When drawing without indices (via glDrawArrays) this variable holds the number of the currently processed vertex since the start of the render call.
+### Fragment shader variables
+__gl_FrontFacing__  
+The gl_FragCoord's x and y component are the window- or screen-space coordinates of the fragment, originating from the bottom-left of the window. The gl_FragCoord's z is equal to the depth value of that particular fragment.
+```GLSL
+void main()
+{             
+    if(gl_FragCoord.x < 400)
+        FragColor = vec4(1.0, 0.0, 0.0, 1.0);
+    else
+        FragColor = vec4(0.0, 1.0, 0.0, 1.0);        
+}  
+```
+__gl_FrontFacing__  
+The gl_FrontFacing variable tells us if the current fragment is part of a front-facing or a back-facing face. 
+The gl_FrontFacing variable is a bool that is true if the fragment is part of a front face and false otherwise.  
+```GLSL
+#version 330 core
+out vec4 FragColor;
+  
+in vec2 TexCoords;
+
+uniform sampler2D frontTexture;
+uniform sampler2D backTexture;
+
+void main()
+{             
+    if(gl_FrontFacing)
+        FragColor = texture(frontTexture, TexCoords);
+    else
+        FragColor = texture(backTexture, TexCoords);
+}  
+```
+__gl_FragDepth__  
+The input variable gl_FragCoord is a read-only variable. We can't influence the screen-space coordinates of the fragment, but it is possible to set the depth value of the fragment. GLSL gives us an output variable called gl_FragDepth that we can use to manually set the depth value of the fragment within the shader.
+
+To set the depth value in the shader we write any value between 0.0 and 1.0 to the output variable.
+```GLSL
+gl_FragDepth = 0.0; // this fragment now has a depth value of 0.0
+```
+If the shader does not write anything to gl_FragDepth, the variable will automatically take its value from gl_FragCoord.z.  
+
+Setting the depth value manually has __a major disadvantage__ however. That is because OpenGL __disables early depth testing__ (as discussed in the depth testing chapter) as soon as we __write to gl_FragDepth in the fragment shader__. It is disabled, because OpenGL __cannot know what depth value the fragment will have before we run the fragment shader__, since the fragment shader may actually change this value. 
+
+By writing to gl_FragDepth you should take this performance penalty into consideration. __From OpenGL 4.2__ however, we can still sort of mediate between both sides by redeclaring the gl_FragDepth variable at the top of the fragment shader with a depth condition:
+```GLSL
+layout (depth_<condition>) out float gl_FragDepth;
+```
+![1674414689334](https://user-images.githubusercontent.com/98029669/213935238-193b9249-7390-4c9b-a11b-2a5654d73a04.png)  
+By specifying greater or less as the depth condition, OpenGL can make the assumption that you'll only write depth values larger or smaller than the fragment's depth value.  
+An example of where we increase the depth value in the fragment shader, but still want to preserve some of the early depth testing is shown in the fragment shader below:
+```GLSL
+#version 420 core // note the GLSL version!
+out vec4 FragColor;
+layout (depth_greater) out float gl_FragDepth;
+
+void main()
+{             
+    FragColor = vec4(1.0);
+    gl_FragDepth = gl_FragCoord.z + 0.1;
+}  
+```
+
+
