@@ -220,10 +220,3 @@ glDrawArrays(GL_TRIANGLES, 0, 6);
 Note: 
 1. Since each framebuffer we're using has its own set of buffers, we want to clear each of those buffers with the appropriate bits set by calling glClear. 
 2. When drawing the quad, we're disabling depth testing since we want to make sure the quad always renders in front of everything else; we'll have to enable depth testing again when we draw the normal scene though.
-
-## Post-processing
-__Some computer vision process__
-
-
-
-
