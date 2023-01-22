@@ -7,7 +7,7 @@ DrawScene();
 normalDisplayShader.use();
 DrawScene();
 ```
-_For the second step:_
+_For the second step:_  
 __Vertex Shader__
 ```GLSL
 #version 330 core
