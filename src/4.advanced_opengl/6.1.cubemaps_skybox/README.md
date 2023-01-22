@@ -93,6 +93,8 @@ unsigned int loadCubemap(vector<std::string> faces)
 }
 ```
 3. Vertex Shader
+P.S. We want to achieve early depth testing here, which means we want to guarantee the skybox always at the farthest face. In fact, the skybox original cooradinates are very close to the camera since it is a 1X1X1 cube. We need to play some trick here.
+P.S. Perspective division is performed after the vertex shader has run, dividing the gl_Position's xyz coordinates by its w component. The z component of the resulting division is equal to that vertex's depth value. To achieve early depth testing, we can set the z component of the output position equal to its w component which will result in a z component that is always equal to 1.0, because when the perspective division is applied its z component translates to w / w = 1.0. Therefore, The resulting normalized device coordinates will then always have a z value equal to 1.0: the maximum depth value.  
 ```GLSL
 #version 330 core
 layout (location = 0) in vec3 aPos;
@@ -105,7 +107,8 @@ uniform mat4 view;
 void main()
 {
     TexCoords = aPos;
-    gl_Position = projection * view * vec4(aPos, 1.0);
+    vec4 pos = projection * view * vec4(aPos, 1.0);
+    gl_Position = pos.xyww; // z component is always equal to 1.0
 }  
 ```
 4. Fragment Shader
@@ -129,8 +132,10 @@ skyboxShader.setInt("skybox", 0); // Later glActiveTexture(GL_TEXTURE0);
 ```
 5. In render loop, remember activate texture  
 P.S. We can remove the translation section of transformation matrices by taking the upper-left 3x3 matrix of the 4x4 matrix. We can achieve this by converting the view matrix to a 3x3 matrix (removing translation) and converting it back to a 4x4 matrix.  
-P.S. In the example, we first draw the cube, which is different from the tutorial. So the depth test is set to glDepthFunc(GL_LEQUAL).
+P.S. We want to reder skybox last. If we render the skybox first, we're running the fragment shader for each pixel on the screen even though only a small part of the skybox will eventually be visible. In fact, fragments that could have easily been discarded using early depth testing saving us valuable bandwidth(Some trick has been played in vertex shader). We do have to change the depth function a little by setting it to GL_LEQUAL instead of the default GL_LESS, since the default is farthest face whose depth equals to skybox.
 ```C++
+// Render scene
+...
 // draw skybox as last
 glDepthFunc(GL_LEQUAL);  // change depth function so depth test passes when values are equal to depth buffer's content
 skyboxShader.use();
