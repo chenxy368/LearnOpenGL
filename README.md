@@ -2,7 +2,7 @@
 Contains code samples for all chapters of Learn OpenGL and [https://learnopengl.com](https://learnopengl.com). 
 
 ## My notes
-Chapter 1: [Chapter 1](https://github.com/chenxy368/LearnOpenGL/tree/master/src/1.getting_started)  
+__Chapter 1:__ [Chapter 1](https://github.com/chenxy368/LearnOpenGL/tree/master/src/1.getting_started)  
 1.1 hellow window: create a window [1.1.1(Basic)](https://github.com/chenxy368/LearnOpenGL/tree/master/src/1.getting_started/1.1.hello_window) [1.1.2(Remember clear buffer)](https://github.com/chenxy368/LearnOpenGL/tree/master/src/1.getting_started/1.2.hello_window_clear)  
 1.2 hellow triangle: draw a triangle [1.2.1(Basic)](https://github.com/chenxy368/LearnOpenGL/tree/master/src/1.getting_started/2.1.hello_triangle) 
 [1.2.2(EBO)](https://github.com/chenxy368/LearnOpenGL/tree/master/src/1.getting_started/2.2.hello_triangle_indexed) 
@@ -34,6 +34,28 @@ Chapter 1: [Chapter 1](https://github.com/chenxy368/LearnOpenGL/tree/master/src/
 [1.7.4(A camera class)](https://github.com/chenxy368/LearnOpenGL/tree/master/src/1.getting_started/7.4.camera_class) 
 [1.7.5(Exercise1)](https://github.com/chenxy368/LearnOpenGL/tree/master/src/1.getting_started/7.5.camera_exercise1) 
 [1.7.6(Exercise2)](https://github.com/chenxy368/LearnOpenGL/tree/master/src/1.getting_started/7.6.camera_exercise2)
+
+__Chapter 2:__ [Chapter 2](https://github.com/chenxy368/LearnOpenGLWithNotes/tree/master/src/2.lighting)  
+2.1 color: frag color and light color [2.1](https://github.com/chenxy368/LearnOpenGLWithNotes/tree/master/src/2.lighting/1.colors)  
+2.2 basic light: phong model [2.2.1(Ambient and diffuse)](https://github.com/chenxy368/LearnOpenGLWithNotes/tree/master/src/2.lighting/2.1.basic_lighting_diffuse) 
+[2.2.2(Specular)](https://github.com/chenxy368/LearnOpenGLWithNotes/tree/master/src/2.lighting/2.2.basic_lighting_specular)  
+2.3 material: how to deal with materials in phong model [2.3.1](https://github.com/chenxy368/LearnOpenGLWithNotes/tree/master/src/2.lighting/3.1.materials) 
+[2.3.2(Exercise1)](https://github.com/chenxy368/LearnOpenGLWithNotes/tree/master/src/2.lighting/3.2.materials_exercise1)  
+2.4 lightning maps: using textures to define materials at different fragment position 
+[2.4.1(Diffuse map)](https://github.com/chenxy368/LearnOpenGLWithNotes/tree/master/src/2.lighting/4.1.lighting_maps_diffuse_map) 
+[2.4.2(Specular map)](https://github.com/chenxy368/LearnOpenGLWithNotes/tree/master/src/2.lighting/4.2.lighting_maps_specular_map) 
+[2.4.3(Exercise2)](https://github.com/chenxy368/LearnOpenGLWithNotes/tree/master/src/2.lighting/4.3.lighting_maps_exercise2)
+[2.4.4(Exercise4)](https://github.com/chenxy368/LearnOpenGLWithNotes/tree/master/src/2.lighting/4.4.lighting_maps_exercise4)  
+2.5 light casters: three types light casters 
+[2.5.1(Directional)](https://github.com/chenxy368/LearnOpenGLWithNotes/tree/master/src/2.lighting/5.1.light_casters_directional) 
+[2.5.2(Point)](https://github.com/chenxy368/LearnOpenGLWithNotes/tree/master/src/2.lighting/5.2.light_casters_point)
+[2.5.3(Spot)](https://github.com/chenxy368/LearnOpenGLWithNotes/tree/master/src/2.lighting/5.3.light_casters_spot)
+[2.5.4(Spot Soft)](https://github.com/chenxy368/LearnOpenGLWithNotes/tree/master/src/2.lighting/5.4.light_casters_spot_soft)  
+2.6 multiple lights: combine directional, point and spot lightning casters 
+[2.6.1](https://github.com/chenxy368/LearnOpenGLWithNotes/tree/master/src/2.lighting/6.multiple_lights)
+[2.6.2(Exercise1)](https://github.com/chenxy368/LearnOpenGLWithNotes/tree/master/src/2.lighting/6.multiple_lights_exercise1)
+
+__Chapter 4:__ [Chapter 4](https://github.com/chenxy368/LearnOpenGLWithNotes/tree/master/src/4.advanced_opengl)  
 
 ## Windows building
 All relevant libraries are found in /libs and all DLLs found in /dlls (pre-)compiled for Windows. 
