@@ -192,6 +192,7 @@ void renderQuad()
     glBindVertexArray(0);
 }
 ```
+![image](https://user-images.githubusercontent.com/98029669/214149789-d919bf3c-1ede-41c5-aeda-48da4df24a18.png)
 
 ### Difference between ortho and perspective projection in generating shadow map
 ![image](https://user-images.githubusercontent.com/98029669/214149184-f5426c0f-1428-464e-85d4-f23d7af3cda1.png)
