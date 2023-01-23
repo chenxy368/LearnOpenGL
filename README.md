@@ -56,6 +56,33 @@ __Chapter 2:__ [Chapter 2](https://github.com/chenxy368/LearnOpenGLWithNotes/tre
 [2.6.2(Exercise1)](https://github.com/chenxy368/LearnOpenGLWithNotes/tree/master/src/2.lighting/6.multiple_lights_exercise1)
 
 __Chapter 4:__ [Chapter 4](https://github.com/chenxy368/LearnOpenGLWithNotes/tree/master/src/4.advanced_opengl)  
+4.1 depth test: render closer fragment: [4.1.1(Enable)](https://github.com/chenxy368/LearnOpenGLWithNotes/tree/master/src/4.advanced_opengl/1.1.depth_testing)
+[4.1.2(Check z-buffer)](https://github.com/chenxy368/LearnOpenGLWithNotes/tree/master/src/4.advanced_opengl/1.2.depth_testing_view)
+4.2 stencil test: mask ROI [4.2](https://github.com/chenxy368/LearnOpenGLWithNotes/tree/master/src/4.advanced_opengl/2.stencil_testing)
+4.3 blending: transparent and obstacle fragment overlap 
+[4.3.1(Discard)](https://github.com/chenxy368/LearnOpenGLWithNotes/tree/master/src/4.advanced_opengl/3.1.blending_discard) 
+[4.3.2(Blending sorted fragment)](https://github.com/chenxy368/LearnOpenGLWithNotes/tree/master/src/4.advanced_opengl/3.2.blending_sort)  
+4.4 face culling: discard front or back faces [4.4](https://github.com/chenxy368/LearnOpenGLWithNotes/tree/master/src/4.advanced_opengl/4.face_culling_exercise1)  
+4.5 framebuffers: render to a texture or rbo instead of directly on screen 
+[4.5.1(Basic)](https://github.com/chenxy368/LearnOpenGLWithNotes/tree/master/src/4.advanced_opengl/5.1.framebuffers) 
+[4.5.2(Exercise1)](https://github.com/chenxy368/LearnOpenGLWithNotes/tree/master/src/4.advanced_opengl/5.2.framebuffers_exercise1)  
+4.6 cubemaps: a cube texture on the edge of rendering clipping space 
+[4.6.1(Skybox)](https://github.com/chenxy368/LearnOpenGLWithNotes/tree/master/src/4.advanced_opengl/6.1.cubemaps_skybox)
+[4.6.2(Skybox with reflection and refraction)](https://github.com/chenxy368/LearnOpenGLWithNotes/tree/master/src/4.advanced_opengl/6.2.cubemaps_environment_mapping)  
+4.7 advanced data: GPU memory operation [4.7&4.8](https://github.com/chenxy368/LearnOpenGLWithNotes/tree/master/src/4.advanced_opengl/8.advanced_glsl_ubo)  
+4.8 advanced GLSL: built-in variables, interface blocks and UBO 
+[4.7&4.8](https://github.com/chenxy368/LearnOpenGLWithNotes/tree/master/src/4.advanced_opengl/8.advanced_glsl_ubo)  
+4.9 geometry shader: shader for geometry processing 
+[4.9.1(Basic)](https://github.com/chenxy368/LearnOpenGLWithNotes/tree/master/src/4.advanced_opengl/9.1.geometry_shader_houses) 
+[4.9.2(Move along normal)](https://github.com/chenxy368/LearnOpenGLWithNotes/tree/master/src/4.advanced_opengl/9.2.geometry_shader_exploding) 
+[4.9.3(Render normals)](https://github.com/chenxy368/LearnOpenGLWithNotes/tree/master/src/4.advanced_opengl/9.3.geometry_shader_normals)  
+4.10 instancing: pass data once and draw many 
+[4.10.1(Basic)](https://github.com/chenxy368/LearnOpenGLWithNotes/tree/master/src/4.advanced_opengl/10.1.instancing_quads) 
+[4.10.2(Asteroids case without instancing)](https://github.com/chenxy368/LearnOpenGLWithNotes/tree/master/src/4.advanced_opengl/10.2.asteroids) 
+[4.10.3(Asteroids case with instancing)](https://github.com/chenxy368/LearnOpenGLWithNotes/tree/master/src/4.advanced_opengl/10.3.asteroids_instanced)  
+4.11 anti aliasing: smooth edge [4.11.1(On-screen MSAA)](https://github.com/chenxy368/LearnOpenGLWithNotes/tree/master/src/4.advanced_opengl/11.1.anti_aliasing_msaa) 
+[4.11.2(Off-screen MSAA)](https://github.com/chenxy368/LearnOpenGLWithNotes/tree/master/src/4.advanced_opengl/11.2.anti_aliasing_offscreen)
+
 
 ## Windows building
 All relevant libraries are found in /libs and all DLLs found in /dlls (pre-)compiled for Windows. 
