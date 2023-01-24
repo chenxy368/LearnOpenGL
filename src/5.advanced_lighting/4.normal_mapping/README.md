@@ -116,7 +116,9 @@ layout (location = 2) in vec2 texCoords;
 layout (location = 3) in vec3 tangent;
 layout (location = 4) in vec3 bitangent;
 ```
-2. Create TBN
+2. Create TBN  
+![image](https://user-images.githubusercontent.com/98029669/214232509-0ff835e0-0c22-4442-8a1a-27b27b63c367.png)  
+For TBN, tranpose(TBN) is the same as inverse(TBN).
 ```GLSL
 mat3 normalMatrix = transpose(inverse(mat3(model)));
 vec3 T = normalize(normalMatrix * aTangent);
