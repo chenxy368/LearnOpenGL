@@ -3,7 +3,7 @@
 ![image](https://user-images.githubusercontent.com/98029669/214448247-19684245-21cb-434a-895e-1e401f46cb8f.png)  
 Steep Parallax Mapping also comes with its problems though. Because the technique is based on a finite number of samples, we get aliasing effects and the clear distinctions between layers can easily be spotted:
 
-Add a linear interpolation(weighted average T2 and T3)
+Add a linear interpolation(weighted average T2 and T3)  
 ![image](https://user-images.githubusercontent.com/98029669/214448373-555d3f99-83f3-478f-9bbe-c5e5f2a52f9c.png)
 ```GLSL
 [...] // steep parallax mapping code here
