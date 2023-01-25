@@ -263,7 +263,8 @@ out vec2 TexCoords;
 
 void main()
 {
-    TexCoords = aTexCoords; // In g-buffer all coordinates should be in screen space [0,1]  X [0,1]
+    TexCoords = aTexCoords; // [0, 1) X [0, 1)
+    // 16 on 4x4, [-2, 2) X [-2, 2)
     gl_Position = vec4(aPos, 1.0);
 }
 ```
@@ -286,8 +287,7 @@ float radius = 0.5;
 float bias = 0.025;
 
 // tile noise texture over screen based on screen dimensions divided by noise size
-// the original texture coordination is with small size range from [0, 4]X[0, 4]. However, the SSAO is performed on a 2D image which has the same size as the screen
-// Remember the noise texture is 4X4, different from the g-buffer's textures
+// Remember the noise texture is 4X4
 const vec2 noiseScale = vec2(800.0/4.0, 600.0/4.0); 
 
 uniform mat4 projection;
@@ -297,7 +297,10 @@ void main()
     // get input for SSAO algorithm
     vec3 fragPos = texture(gPosition, TexCoords).xyz;
     vec3 normal = normalize(texture(gNormal, TexCoords).rgb);
-    // texcoord [0, 4] X [0, 4] -> [0, 800] X [0, 600]
+    // texcoord [0, 1) X [0, 1) -> [0, 200) X [0, 120)
+    // [200, 800) [120, 600) can still work because GL_REPEAT
+    // glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    // glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT); 
     vec3 randomVec = normalize(texture(texNoise, TexCoords * noiseScale).xyz);
     // create TBN change-of-basis matrix: from tangent-space to view-space, notice we already in view space after transformation due to g-buffer
     vec3 tangent = normalize(randomVec - normal * dot(randomVec, normal));
@@ -324,8 +327,104 @@ void main()
         float rangeCheck = smoothstep(0.0, 1.0, radius / abs(fragPos.z - sampleDepth));
         occlusion += (sampleDepth >= samplePos.z + bias ? 1.0 : 0.0) * rangeCheck;           
     }
+    // As a final step we normalize the occlusion contribution by the size of the kernel and output the results. 
+    // Note that we subtract the occlusion factor from 1.0 so we can directly use the occlusion factor to scale the ambient lighting component.
     occlusion = 1.0 - (occlusion / kernelSize);
     
     FragColor = occlusion;
+}
+```
+Why range check?  
+![image](https://user-images.githubusercontent.com/98029669/214503908-514c6f88-d27e-4fef-85d1-f12305469ec5.png)
+![image](https://user-images.githubusercontent.com/98029669/214504228-8fc71c9d-b4b9-4d0f-a26a-a8e2985bb191.png)
+
+```GLSL
+float rangeCheck = smoothstep(0.0, 1.0, radius / abs(fragPos.z - sampleDepth));
+// On the edge abs(fragPos.z - sampleDepth) is large(going to another object), and radius / abs(fragPos.z - sampleDepth) is small so rangeCheck is small. Eventually, low contribution to occlusion
+occlusion += (sampleDepth >= sample.z ? 1.0 : 0.0) * rangeCheck;
+```
+
+In fact
+
+![image](https://user-images.githubusercontent.com/98029669/214504953-a206e304-0ae3-442e-9f26-6437bf13edf5.png)
+
+P.S.
+![image](https://user-images.githubusercontent.com/98029669/214505143-48e92e42-8609-43e9-bb7c-3cc82f6a0aa6.png)
+
+## blur shaders
+Fragment shader
+```GLSL
+#version 330 core
+out float FragColor;
+
+in vec2 TexCoords;
+
+uniform sampler2D ssaoInput;
+
+void main() 
+{
+    vec2 texelSize = 1.0 / vec2(textureSize(ssaoInput, 0)); // 800 X 600
+    float result = 0.0;
+    // offset centered at the target position, also the noise texture is 4 X 4
+    for (int x = -2; x < 2; ++x) 
+    {
+        for (int y = -2; y < 2; ++y) 
+        {
+            vec2 offset = vec2(float(x), float(y)) * texelSize; // offset should be much smaller than 1 or 2
+            result += texture(ssaoInput, TexCoords + offset).r; // sample one more near point to average
+        }
+    }
+    FragColor = result / (4.0 * 4.0); // 16 sample points
+}  
+```
+
+## SSAO on Final Lighting
+``GLSL
+#version 330 core
+out vec4 FragColor;
+
+in vec2 TexCoords;
+
+uniform sampler2D gPosition;
+uniform sampler2D gNormal;
+uniform sampler2D gAlbedo;
+uniform sampler2D ssao;
+
+struct Light {
+    vec3 Position;
+    vec3 Color;
+    
+    float Linear;
+    float Quadratic;
+};
+uniform Light light;
+
+void main()
+{             
+    // retrieve data from gbuffer
+    vec3 FragPos = texture(gPosition, TexCoords).rgb;
+    vec3 Normal = texture(gNormal, TexCoords).rgb;
+    vec3 Diffuse = texture(gAlbedo, TexCoords).rgb;
+    float AmbientOcclusion = texture(ssao, TexCoords).r; // a occlusion value sampled on ssao texture
+    
+    // then calculate lighting as usual
+    vec3 ambient = vec3(0.3 * Diffuse * AmbientOcclusion); // reduce the ambient based on occulusion factor
+    vec3 lighting  = ambient; 
+    vec3 viewDir  = normalize(-FragPos); // viewpos is (0.0.0)
+    // diffuse
+    vec3 lightDir = normalize(light.Position - FragPos);
+    vec3 diffuse = max(dot(Normal, lightDir), 0.0) * Diffuse * light.Color;
+    // specular
+    vec3 halfwayDir = normalize(lightDir + viewDir);  
+    float spec = pow(max(dot(Normal, halfwayDir), 0.0), 8.0);
+    vec3 specular = light.Color * spec;
+    // attenuation
+    float distance = length(light.Position - FragPos);
+    float attenuation = 1.0 / (1.0 + light.Linear * distance + light.Quadratic * distance * distance);
+    diffuse *= attenuation;
+    specular *= attenuation;
+    lighting += diffuse + specular;
+
+    FragColor = vec4(lighting, 1.0);
 }
 ```
