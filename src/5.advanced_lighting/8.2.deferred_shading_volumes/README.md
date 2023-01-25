@@ -193,9 +193,9 @@ __To really use__
 ```C++
 glBindFramebuffer(GL_FRAMEBUFFER, gBuffer);
 // ...render the scene without light
-glBindFramebuffer(GL_FRAMEBUFFER, 0); // 绑定默认缓冲，渲染球体并着色
+glBindFramebuffer(GL_FRAMEBUFFER, 0);
 ```
-3. Construct the spheres in the C++ program. The spheres do not have any color in practice.(Imaginary)
+3. Construct the spheres in the C++ program. The spheres' color should be the light color.(Imaginary)
 4. Render the sphere
 ```C++
 lightVolumeShader.use(); // In this shader consider the light, only the fragment on sphere will be rendered
