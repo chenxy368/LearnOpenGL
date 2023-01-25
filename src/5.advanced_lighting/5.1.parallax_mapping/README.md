@@ -63,6 +63,7 @@ uniform sampler2D diffuseMap;
 uniform sampler2D normalMap;
 uniform sampler2D depthMap;
 
+// shader.setFloat("heightScale", heightScale); // adjust with Q and E keys
 uniform float height_scale;
 
 vec2 ParallaxMapping(vec2 texCoords, vec3 viewDir);
