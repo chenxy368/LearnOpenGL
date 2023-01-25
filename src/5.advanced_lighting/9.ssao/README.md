@@ -86,7 +86,7 @@ glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 ```
-## C++ part structure
+## C++ Part structure
 ```C++
 
 float ourLerp(float a, float b, float f)
@@ -248,5 +248,84 @@ int main()
       ...
     }
     ...
+}
+```
+## ssao_geometry shaders
+Nothing Different
+## ssao shaders
+vertex shader: just pass
+```GLSL
+#version 330 core
+layout (location = 0) in vec3 aPos;
+layout (location = 1) in vec2 aTexCoords;
+
+out vec2 TexCoords;
+
+void main()
+{
+    TexCoords = aTexCoords; // In g-buffer all coordinates should be in screen space [0,1]  X [0,1]
+    gl_Position = vec4(aPos, 1.0);
+}
+```
+fragment shader
+```GLSL
+version 330 core
+out float FragColor;
+
+in vec2 TexCoords;
+
+uniform sampler2D gPosition;
+uniform sampler2D gNormal;
+uniform sampler2D texNoise;
+
+uniform vec3 samples[64];
+
+// parameters (you'd probably want to use them as uniforms to more easily tweak the effect)
+int kernelSize = 64;
+float radius = 0.5;
+float bias = 0.025;
+
+// tile noise texture over screen based on screen dimensions divided by noise size
+// the original texture coordination is with small size range from [0, 4]X[0, 4]. However, the SSAO is performed on a 2D image which has the same size as the screen
+// Remember the noise texture is 4X4, different from the g-buffer's textures
+const vec2 noiseScale = vec2(800.0/4.0, 600.0/4.0); 
+
+uniform mat4 projection;
+
+void main()
+{
+    // get input for SSAO algorithm
+    vec3 fragPos = texture(gPosition, TexCoords).xyz;
+    vec3 normal = normalize(texture(gNormal, TexCoords).rgb);
+    // texcoord [0, 4] X [0, 4] -> [0, 800] X [0, 600]
+    vec3 randomVec = normalize(texture(texNoise, TexCoords * noiseScale).xyz);
+    // create TBN change-of-basis matrix: from tangent-space to view-space, notice we already in view space after transformation due to g-buffer
+    vec3 tangent = normalize(randomVec - normal * dot(randomVec, normal));
+    vec3 bitangent = cross(normal, tangent);
+    mat3 TBN = mat3(tangent, bitangent, normal);
+    // iterate over the sample kernel and calculate occlusion factor
+    float occlusion = 0.0;
+    for(int i = 0; i < kernelSize; ++i)
+    {
+        // get sample position
+        vec3 samplePos = TBN * samples[i]; // from tangent to view-space
+        samplePos = fragPos + samplePos * radius; // when generate random, we limit [-1, 1] for xy and [0, 1] for z
+        
+        // project sample position (to sample texture) (to get position on screen/texture), we generate random number in 3D corresponding to TBN space
+        vec4 offset = vec4(samplePos, 1.0);
+        offset = projection * offset; // from view to clip-space
+        offset.xyz /= offset.w; // perspective divide
+        offset.xyz = offset.xyz * 0.5 + 0.5; // transform to range 0.0 - 1.0, to screen space
+        
+        // get sample depth
+        float sampleDepth = texture(gPosition, offset.xy).z; // get depth value of kernel sample
+        
+        // range check & accumulate, depth larger make darker
+        float rangeCheck = smoothstep(0.0, 1.0, radius / abs(fragPos.z - sampleDepth));
+        occlusion += (sampleDepth >= samplePos.z + bias ? 1.0 : 0.0) * rangeCheck;           
+    }
+    occlusion = 1.0 - (occlusion / kernelSize);
+    
+    FragColor = occlusion;
 }
 ```
