@@ -131,7 +131,7 @@ int main()
         // 3. now render floating point color buffer to 2D quad and tonemap HDR colors to default framebuffer's (clamped) color range
         // --------------------------------------------------------------------------------------------------------------------------
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-        shaderBloomFinal.use(); // 
+        shaderBloomFinal.use(); // shaderBloomFinal("7.bloom_final.vs", "7.bloom_final.fs");
         glActiveTexture(GL_TEXTURE0);
         // colorBuffers[0] do not have light cube on it
         glBindTexture(GL_TEXTURE_2D, colorBuffers[0]);
@@ -144,5 +144,181 @@ int main()
         ...
     }
     ...
+}
+```
+## Shaders
+__bloow.vs__, this vertex shader is shared by bloow.fs and light_box.fs
+
+nothing special
+```GLSL
+#version 330 core
+layout (location = 0) in vec3 aPos;
+layout (location = 1) in vec3 aNormal;
+layout (location = 2) in vec2 aTexCoords;
+
+out VS_OUT {
+    vec3 FragPos;
+    vec3 Normal;
+    vec2 TexCoords;
+} vs_out;
+
+uniform mat4 projection;
+uniform mat4 view;
+uniform mat4 model;
+
+void main()
+{
+    vs_out.FragPos = vec3(model * vec4(aPos, 1.0));   
+    vs_out.TexCoords = aTexCoords;
+        
+    mat3 normalMatrix = transpose(inverse(mat3(model)));
+    vs_out.Normal = normalize(normalMatrix * aNormal);
+    
+    gl_Position = projection * view * model * vec4(aPos, 1.0);
+}
+```
+__bloom.fs__
+```GLSL
+#version 330 core
+// Multiple Render Targets (MRT) 
+// Specifying a layout location specifier before a fragment shader's output we can control to which color buffer a fragment shader writes to
+layout (location = 0) out vec4 FragColor;
+layout (location = 1) out vec4 BrightColor;
+// FragColor to attachment 0 and BrightColor to attachment 1
+
+[...]
+
+void main()
+{            
+    [...] // first do normal lighting calculations and output results
+    FragColor = vec4(lighting, 1.0f);
+    // Check whether fragment output is higher than threshold, if so output as brightness color
+    float brightness = dot(FragColor.rgb, vec3(0.2126, 0.7152, 0.0722));
+    // Since we use HDR, the brightness is allowed to be larger than 1.0. If the brightness larger than 1.0, it need bloom(to attachment 1)
+    if(brightness > 1.0)
+        BrightColor = vec4(result, 1.0);
+    else
+        BrightColor = vec4(0.0, 0.0, 0.0, 1.0);
+    FragColor = vec4(result, 1.0);
+}
+```
+__light_box.fs__(similar to bloom.fs)
+```GLSL
+#version 330 core
+layout (location = 0) out vec4 FragColor;
+layout (location = 1) out vec4 BrightColor;
+
+in VS_OUT {
+    vec3 FragPos;
+    vec3 Normal;
+    vec2 TexCoords;
+} fs_in;
+
+uniform vec3 lightColor;
+
+void main()
+{           
+    FragColor = vec4(lightColor, 1.0);
+    float brightness = dot(FragColor.rgb, vec3(0.2126, 0.7152, 0.0722));
+    if(brightness > 1.0)
+        BrightColor = vec4(FragColor.rgb, 1.0);
+	else
+		BrightColor = vec4(0.0, 0.0, 0.0, 1.0);
+}
+```
+![image](https://user-images.githubusercontent.com/98029669/214477479-5590b569-9c1c-4d8a-b254-6f4f774ceace.png)
+
+Decompose 2D gaussian blur to 1D. Run vertical and horizontal blur separately. One vertical and one horizontal. The result can be the same as 2D blur. The efficiency can be higher.  
+![image](https://user-images.githubusercontent.com/98029669/214478377-9c0ef7e6-8e85-4448-8e9b-89acdaea8c06.png)
+![image](https://user-images.githubusercontent.com/98029669/214479164-11afb71b-761a-4732-92f2-3ea13808dcca.png)
+
+__blur.vs__(nothing special)
+```GLSL
+#version 330 core
+layout (location = 0) in vec3 aPos;
+layout (location = 1) in vec2 aTexCoords;
+
+out vec2 TexCoords;
+
+void main()
+{
+    TexCoords = aTexCoords;
+    gl_Position = vec4(aPos, 1.0);
+}
+```
+__blur.fs__
+```GLSL
+#version 330 core
+out vec4 FragColor;
+
+in vec2 TexCoords;
+
+uniform sampler2D image;
+
+uniform bool horizontal;
+uniform float weight[5] = float[] (0.2270270270, 0.1945945946, 0.1216216216, 0.0540540541, 0.0162162162);
+
+void main()
+{             
+     vec2 tex_offset = 1.0 / textureSize(image, 0); // gets size of single texel
+     vec3 result = texture(image, TexCoords).rgb * weight[0];
+     if(horizontal)
+     {
+         for(int i = 1; i < 5; ++i)
+         {
+            result += texture(image, TexCoords + vec2(tex_offset.x * i, 0.0)).rgb * weight[i];
+            result += texture(image, TexCoords - vec2(tex_offset.x * i, 0.0)).rgb * weight[i];
+         }
+     }
+     else
+     {
+         for(int i = 1; i < 5; ++i)
+         {
+             result += texture(image, TexCoords + vec2(0.0, tex_offset.y * i)).rgb * weight[i];
+             result += texture(image, TexCoords - vec2(0.0, tex_offset.y * i)).rgb * weight[i];
+         }
+     }
+     FragColor = vec4(result, 1.0);
+}
+```
+Mix together  
+__bloom_final.vs__
+```GLSL
+#version 330 core
+layout (location = 0) in vec3 aPos;
+layout (location = 1) in vec2 aTexCoords;
+
+out vec2 TexCoords;
+
+void main()
+{
+    TexCoords = aTexCoords;
+    gl_Position = vec4(aPos, 1.0);
+}
+```
+__bloom_final.fs__
+```GLSL
+#version 330 core
+out vec4 FragColor;
+
+in vec2 TexCoords;
+
+uniform sampler2D scene;
+uniform sampler2D bloomBlur;
+uniform bool bloom;
+uniform float exposure;
+
+void main()
+{             
+    const float gamma = 2.2;
+    vec3 hdrColor = texture(scene, TexCoords).rgb;      
+    vec3 bloomColor = texture(bloomBlur, TexCoords).rgb;
+    if(bloom)
+        hdrColor += bloomColor; // additive blending
+    // tone mapping
+    vec3 result = vec3(1.0) - exp(-hdrColor * exposure);
+    // also gamma correct while we're at it       
+    result = pow(result, vec3(1.0 / gamma));
+    FragColor = vec4(result, 1.0);
 }
 ```
