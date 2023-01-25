@@ -27,3 +27,107 @@ To get rid of the limitation, use GL_RGB16F, GL_RGBA16F, GL_RGB32F, or GL_RGBA32
 glBindTexture(GL_TEXTURE_2D, colorBuffer);
 glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, SCR_WIDTH, SCR_HEIGHT, 0, GL_RGBA, GL_FLOAT, NULL);  
 ```
+First render a lit scene into the floating point framebuffer and then display the framebuffer's color buffer on a screen-filled quad:
+```C++
+// 1. render scene into floating point framebuffer
+// -----------------------------------------------
+glBindFramebuffer(GL_FRAMEBUFFER, hdrFBO);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom), (GLfloat)SCR_WIDTH / (GLfloat)SCR_HEIGHT, 0.1f, 100.0f);
+    glm::mat4 view = camera.GetViewMatrix();
+    shader.use();
+    shader.setMat4("projection", projection);
+    shader.setMat4("view", view);
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, woodTexture);
+    // set lighting uniforms
+    for (unsigned int i = 0; i < lightPositions.size(); i++)
+    {
+         shader.setVec3("lights[" + std::to_string(i) + "].Position", lightPositions[i]);
+         shader.setVec3("lights[" + std::to_string(i) + "].Color", lightColors[i]);
+    }
+    shader.setVec3("viewPos", camera.Position);
+    // render tunnel
+    glm::mat4 model = glm::mat4(1.0f);
+    model = glm::translate(model, glm::vec3(0.0f, 0.0f, 25.0));
+    model = glm::scale(model, glm::vec3(2.5f, 2.5f, 27.5f));
+    shader.setMat4("model", model);
+    shader.setInt("inverse_normals", true);
+    renderCube();
+glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+// 2. now render floating point color buffer to 2D quad and tonemap HDR colors to default framebuffer's (clamped) color range
+glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+hdrShader.use();
+glActiveTexture(GL_TEXTURE0);
+glBindTexture(GL_TEXTURE_2D, colorBuffer);
+hdrShader.setInt("hdr", hdr);
+hdrShader.setFloat("exposure", exposure);
+renderQuad();
+```
+Set a hight light color source
+```C++
+std::vector<glm::vec3> lightColors;
+lightColors.push_back(glm::vec3(200.0f, 200.0f, 200.0f));
+lightColors.push_back(glm::vec3(0.1f, 0.0f, 0.0f));
+lightColors.push_back(glm::vec3(0.0f, 0.0f, 0.2f));
+lightColors.push_back(glm::vec3(0.0f, 0.1f, 0.0f));  
+```
+To render the hdr quad, set a Pass-through Fragment Shader
+```GLSL
+#version 330 core
+out vec4 color;
+in vec2 TexCoords;
+
+uniform sampler2D hdrBuffer;
+
+void main()
+{             
+    vec3 hdrColor = texture(hdrBuffer, TexCoords).rgb;
+    color = vec4(hdrColor, 1.0);
+}  
+```
+## Tone mapping
+__Reinhard tone mapping__: (r, g, b) / ((r, g, b) + (1, 1, 1))
+```GLSL
+void main()
+{             
+    const float gamma = 2.2;
+    vec3 hdrColor = texture(hdrBuffer, TexCoords).rgb;
+    if(hdr) // press space to change using reinhard or not
+    {
+        // reinhard
+        vec3 result = hdrColor / (hdrColor + vec3(1.0));
+        // also gamma correct while we're at it       
+        result = pow(result, vec3(1.0 / gamma));
+        FragColor = vec4(result, 1.0);
+    }
+    else
+    {
+        vec3 result = pow(hdrColor, vec3(1.0 / gamma));
+        FragColor = vec4(result, 1.0);
+    }
+}
+```
+__Exposure tone mapping__: (1, 1, 1) - e^(-(r, g, b)*exposure) 
+```GLSL
+void main()
+{             
+    const float gamma = 2.2;
+    vec3 hdrColor = texture(hdrBuffer, TexCoords).rgb;
+    if(hdr) // press space to change using reinhard or not
+    {
+        // exposure
+        // tune the exposure parameter with Q and E
+        vec3 result = vec3(1.0) - exp(-hdrColor * exposure);
+        // also gamma correct while we're at it       
+        result = pow(result, vec3(1.0 / gamma));
+        FragColor = vec4(result, 1.0);
+    }
+    else
+    {
+        vec3 result = pow(hdrColor, vec3(1.0 / gamma));
+        FragColor = vec4(result, 1.0);
+    }
+}
+```
