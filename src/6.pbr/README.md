@@ -15,3 +15,15 @@
 ![image](https://user-images.githubusercontent.com/98029669/214894821-8e5faf8c-39b9-462f-971e-9bad577fdcbb.png)
 ![image](https://user-images.githubusercontent.com/98029669/214895783-01081041-cf42-4a02-b833-416418928a80.png)
 ![image](https://user-images.githubusercontent.com/98029669/214898793-c8d45a3a-beaf-42af-a26c-3e9ffdca4c03.png)
+![image](https://user-images.githubusercontent.com/98029669/214918875-9b4519cc-f047-4359-837e-df54de81b57f.png)
+![image](https://user-images.githubusercontent.com/98029669/214918917-c6c89a5c-63dd-4681-835a-b77af8fb9e89.png)
+![image](https://user-images.githubusercontent.com/98029669/214918977-ff8bdb5b-ee26-4b47-b9c4-8fb90b143c6a.png)
+![image](https://user-images.githubusercontent.com/98029669/214919627-4e2d89fa-911b-4ed3-a178-8d760d76f966.png)
+## Numerical Integration
+![image](https://user-images.githubusercontent.com/98029669/214922504-a4d2d70f-659d-4392-9f79-dd7ca3509e41.png)
+![image](https://user-images.githubusercontent.com/98029669/214922574-dd4f5290-0407-4289-8852-7876126f5572.png)
+![image](https://user-images.githubusercontent.com/98029669/214922419-08b23636-ba43-47cc-af23-3a0972b0ce44.png)
+![image](https://user-images.githubusercontent.com/98029669/214923759-663febda-9139-47eb-9be2-59ab45fce104.png)
+![image](https://user-images.githubusercontent.com/98029669/214923784-a4c6e469-c0e6-4a5a-bd79-6a5f582a6931.png)
+![image](https://user-images.githubusercontent.com/98029669/214924411-a87b6e95-d154-4ab0-ac12-4a42f646b217.png)
+
