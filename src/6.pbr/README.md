@@ -26,4 +26,16 @@
 ![image](https://user-images.githubusercontent.com/98029669/214923759-663febda-9139-47eb-9be2-59ab45fce104.png)
 ![image](https://user-images.githubusercontent.com/98029669/214923784-a4c6e469-c0e6-4a5a-bd79-6a5f582a6931.png)
 ![image](https://user-images.githubusercontent.com/98029669/214924411-a87b6e95-d154-4ab0-ac12-4a42f646b217.png)
+![image](https://user-images.githubusercontent.com/98029669/214928727-1403dbb9-1ec9-4484-a326-dd1d35ae5df2.png)
+![image](https://user-images.githubusercontent.com/98029669/214928746-d715a64e-e536-4cc9-9010-23be5020c472.png)
+![image](https://user-images.githubusercontent.com/98029669/214928790-1b111eda-238b-4483-99c0-5462a6ac85e2.png)
+![image](https://user-images.githubusercontent.com/98029669/214930199-d68f9c2c-27ea-41ca-9a02-08577353dacf.png)
+![image](https://user-images.githubusercontent.com/98029669/214930229-a566cfeb-2df4-49bf-bc11-4437faf83798.png)
+## Monte Carlo Ray Tracing
+![image](https://user-images.githubusercontent.com/98029669/214932184-cac39257-25c2-4ae0-9dcf-840e8a6de255.png)
+![image](https://user-images.githubusercontent.com/98029669/214933998-2a98462e-4d23-4bcc-a147-4be68f081170.png)
+![image](https://user-images.githubusercontent.com/98029669/214937422-6a84fe87-3969-44c0-918f-271c26f60b12.png)
+![image](https://user-images.githubusercontent.com/98029669/214937441-1cfa6115-f226-4dce-ae21-f44f22a3bf8d.png)
+
+
 
