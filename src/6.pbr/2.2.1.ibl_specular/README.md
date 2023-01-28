@@ -292,4 +292,5 @@ We store the convoluted results in a 2D lookup texture (LUT) known as a BRDF int
 
 ![image](https://user-images.githubusercontent.com/98029669/215250967-87771a12-919c-4fac-a910-1de056db978a.png)
 
+![image](https://user-images.githubusercontent.com/98029669/215253756-c8a6a10a-41b3-4f6d-a3f4-cca4ebefeca7.png)
 
