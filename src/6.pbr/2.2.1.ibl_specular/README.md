@@ -280,3 +280,16 @@ generate the mipmaps
 glBindTexture(GL_TEXTURE_CUBE_MAP, envCubemap);
 glGenerateMipmap(GL_TEXTURE_CUBE_MAP);
 ```
+
+## Pre-computing the BRDF
+The second part of the split sum equation equals the BRDF part of the specular integral. If we pretend the incoming radiance is completely white for every direction __(thus L(p,x)=1.0)__ we can pre-calculate the BRDF's response given an input __roughness and an input angle between the normal n and light direction ωi, or n⋅ωi__. 
+
+![1674887779856](https://user-images.githubusercontent.com/98029669/215250898-1bf806b2-8c04-455e-bf1c-85f1aa311c09.png)
+
+![image](https://user-images.githubusercontent.com/98029669/215250912-cda71203-a897-4142-b2ca-08743204efe4.png)
+
+We store the convoluted results in a 2D lookup texture (LUT) known as a BRDF integration map that we later use in our PBR lighting shader to get the final convoluted indirect specular result.
+
+![image](https://user-images.githubusercontent.com/98029669/215250967-87771a12-919c-4fac-a910-1de056db978a.png)
+
+
