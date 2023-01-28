@@ -73,3 +73,210 @@ We can do Monte Carlo integration on something called low-discrepancy sequences 
 When using a low-discrepancy sequence for generating the Monte Carlo sample vectors, the process is known as Quasi-Monte Carlo integration. 
 Quasi-Monte Carlo methods have a faster rate of convergence which makes them interesting for performance heavy applications.
  
+The sequence we'll be using is known as the Hammersley Sequence as carefully described by Holger Dammertz. The Hammersley sequence is based on the Van Der Corput sequence which mirrors a decimal binary representation around its decimal point.
+
+```GLSL
+float RadicalInverse_VdC(uint bits) 
+{
+    bits = (bits << 16u) | (bits >> 16u);
+    bits = ((bits & 0x55555555u) << 1u) | ((bits & 0xAAAAAAAAu) >> 1u);
+    bits = ((bits & 0x33333333u) << 2u) | ((bits & 0xCCCCCCCCu) >> 2u);
+    bits = ((bits & 0x0F0F0F0Fu) << 4u) | ((bits & 0xF0F0F0F0u) >> 4u);
+    bits = ((bits & 0x00FF00FFu) << 8u) | ((bits & 0xFF00FF00u) >> 8u);
+    return float(bits) * 2.3283064365386963e-10; // / 0x100000000
+}
+// ----------------------------------------------------------------------------
+// The GLSL Hammersley function gives us the low-discrepancy sample i of the total sample set of size N.
+vec2 Hammersley(uint i, uint N)
+{
+    return vec2(float(i)/float(N), RadicalInverse_VdC(i));
+}  
+```
+
+#### GGX Importance sampling
+To build a sample vector, we need some way of orienting and biasing the sample vector towards the specular lobe of some surface roughness. 
+__(Based on the roughness of a surface, we can calculate the ratio of microfacets roughly aligned to some vector h.)__
+```GLSL
+vec3 ImportanceSampleGGX(vec2 Xi, vec3 N, float roughness)
+{
+    float a = roughness*roughness;
+	
+    float phi = 2.0 * PI * Xi.x;
+    float cosTheta = sqrt((1.0 - Xi.y) / (1.0 + (a*a - 1.0) * Xi.y));
+    float sinTheta = sqrt(1.0 - cosTheta*cosTheta);
+	
+    // from spherical coordinates to cartesian coordinates
+    vec3 H;
+    H.x = cos(phi) * sinTheta;
+    H.y = sin(phi) * sinTheta;
+    H.z = cosTheta;
+	
+    // from tangent-space vector to world-space sample vector
+    vec3 up        = abs(N.z) < 0.999 ? vec3(0.0, 0.0, 1.0) : vec3(1.0, 0.0, 0.0);
+    vec3 tangent   = normalize(cross(up, N));
+    vec3 bitangent = cross(N, tangent);
+	
+    vec3 sampleVec = tangent * H.x + bitangent * H.y + N * H.z;
+    return normalize(sampleVec);
+}  
+```
+pre-filter convolution shader:
+```GLSL
+#version 330 core
+out vec4 FragColor;
+in vec3 localPos;
+
+uniform samplerCube environmentMap;
+uniform float roughness;
+
+const float PI = 3.14159265359;
+
+float RadicalInverse_VdC(uint bits);
+vec2 Hammersley(uint i, uint N);
+vec3 ImportanceSampleGGX(vec2 Xi, vec3 N, float roughness);
+  
+void main()
+{		
+    vec3 N = normalize(localPos);    
+    vec3 R = N;
+    vec3 V = R;
+
+    const uint SAMPLE_COUNT = 1024u;
+    float totalWeight = 0.0;   
+    vec3 prefilteredColor = vec3(0.0);     
+    for(uint i = 0u; i < SAMPLE_COUNT; ++i)
+    {
+        vec2 Xi = Hammersley(i, SAMPLE_COUNT);
+        vec3 H  = ImportanceSampleGGX(Xi, N, roughness);
+        vec3 L  = normalize(2.0 * dot(V, H) * H - V);
+
+        float NdotL = max(dot(N, L), 0.0);
+        if(NdotL > 0.0)
+        {
+            prefilteredColor += texture(environmentMap, L).rgb * NdotL;
+            totalWeight      += NdotL;
+        }
+    }
+    prefilteredColor = prefilteredColor / totalWeight;
+
+    FragColor = vec4(prefilteredColor, 1.0);
+}  
+```
+We pre-filter the environment, based on some input roughness that varies over each mipmap level of the pre-filter cubemap (from 0.0 to 1.0), and store the result in prefilteredColor. The resulting prefilteredColor is divided by the total sample weight, where samples with less influence on the final result (for small NdotL) contribute less to the final weight.
+#### Capturing pre-filter mipmap levels
+```C++
+prefilterShader.use();
+prefilterShader.setInt("environmentMap", 0);
+prefilterShader.setMat4("projection", captureProjection);
+glActiveTexture(GL_TEXTURE0);
+glBindTexture(GL_TEXTURE_CUBE_MAP, envCubemap);
+
+glBindFramebuffer(GL_FRAMEBUFFER, captureFBO);
+unsigned int maxMipLevels = 5;
+for (unsigned int mip = 0; mip < maxMipLevels; ++mip)
+{
+    // reisze framebuffer according to mip-level size.
+    unsigned int mipWidth  = 128 * std::pow(0.5, mip);
+    unsigned int mipHeight = 128 * std::pow(0.5, mip);
+    glBindRenderbuffer(GL_RENDERBUFFER, captureRBO);
+    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT24, mipWidth, mipHeight);
+    glViewport(0, 0, mipWidth, mipHeight);
+
+    // the roughness is corresponding to the mipmap level
+    float roughness = (float)mip / (float)(maxMipLevels - 1);
+    prefilterShader.setFloat("roughness", roughness);
+    for (unsigned int i = 0; i < 6; ++i)
+    {
+        prefilterShader.setMat4("view", captureViews[i]);
+        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, 
+                               GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, prefilterMap, mip);
+
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        renderCube();
+    }
+}
+glBindFramebuffer(GL_FRAMEBUFFER, 0);  
+```
+The process is similar to the irradiance map convolution, but this time we scale the framebuffer's dimensions to the appropriate mipmap scale, each mip level reducing the dimensions by a scale of 2. Additionally, we specify the mip level we're rendering into in glFramebufferTexture2D's last parameter and pass the roughness we're pre-filtering for to the pre-filter shader.
+### Pre-filter convolution artifacts
+#### Cubemap seams at high roughness
+OpenGL by default doesn't linearly interpolate across cubemap faces. Because the lower mip levels are both of a lower resolution and the pre-filter map is convoluted with a much larger sample lobe, the lack of between-cube-face filtering becomes quite apparent:
+
+![image](https://user-images.githubusercontent.com/98029669/215243629-64b3828e-2022-49f1-a0ac-73ac1bf2adc6.png)
+
+To solve, enable
+```C++
+glEnable(GL_TEXTURE_CUBE_MAP_SEAMLESS);  
+```
+#### Bright dots in the pre-filter convolution
+Due to high frequency details and wildly varying light intensities in specular reflections, you'll start seeing dotted patterns emerge around bright areas:
+![image](https://user-images.githubusercontent.com/98029669/215246337-a103ad5f-9dd1-4d1b-a3d8-e11944b9114d.png)
+
+not directly sampling the environment map, but sampling a mip level of the environment map based on the integral's PDF and the roughness:
+```GLSL
+void main()
+{		
+    vec3 N = normalize(WorldPos);
+    
+    // make the simplyfying assumption that V equals R equals the normal 
+    vec3 R = N;
+    vec3 V = R;
+
+    const uint SAMPLE_COUNT = 1024u;
+    vec3 prefilteredColor = vec3(0.0);
+    float totalWeight = 0.0;
+    
+    for(uint i = 0u; i < SAMPLE_COUNT; ++i)
+    {
+        // generates a sample vector that's biased towards the preferred alignment direction (importance sampling).
+        vec2 Xi = Hammersley(i, SAMPLE_COUNT);
+        vec3 H = ImportanceSampleGGX(Xi, N, roughness);
+        vec3 L  = normalize(2.0 * dot(V, H) * H - V);
+
+        float NdotL = max(dot(N, L), 0.0);
+        // if(NdotL > 0.0)
+        // {
+              // Here we directly sample the environmentMap regardless the roughness.
+        //    prefilteredColor += texture(environmentMap, L).rgb * NdotL;
+        //    totalWeight      += NdotL;
+        // }
+    
+        if(NdotL > 0.0)
+        {
+            // sample from the environment's mip level based on roughness/pdf
+            float D   = DistributionGGX(N, H, roughness);
+            float NdotH = max(dot(N, H), 0.0);
+            float HdotV = max(dot(H, V), 0.0);
+            float pdf = D * NdotH / (4.0 * HdotV) + 0.0001; 
+
+            float resolution = 512.0; // resolution of source cubemap (per face)
+            float saTexel  = 4.0 * PI / (6.0 * resolution * resolution);
+            float saSample = 1.0 / (float(SAMPLE_COUNT) * pdf + 0.0001);
+
+            // Compute the mipLevel
+            float mipLevel = roughness == 0.0 ? 0.0 : 0.5 * log2(saSample / saTexel); 
+            
+            prefilteredColor += textureLod(environmentMap, L, mipLevel).rgb * NdotL;
+            totalWeight      += NdotL;
+        }
+    }
+
+    prefilteredColor = prefilteredColor / totalWeight;
+
+    FragColor = vec4(prefilteredColor, 1.0);
+}
+```
+
+enable trilinear filtering on the environment map
+```C++
+glBindTexture(GL_TEXTURE_CUBE_MAP, envCubemap);
+glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR); 
+```
+generate the mipmaps 
+```C++
+// convert HDR equirectangular environment map to cubemap equivalent
+[...]
+// then generate mipmaps
+glBindTexture(GL_TEXTURE_CUBE_MAP, envCubemap);
+glGenerateMipmap(GL_TEXTURE_CUBE_MAP);
+```
