@@ -83,6 +83,27 @@ __Chapter 4:__ [Chapter 4](https://github.com/chenxy368/LearnOpenGLWithNotes/tre
 4.11 anti aliasing: smooth edge [4.11.1(On-screen MSAA)](https://github.com/chenxy368/LearnOpenGLWithNotes/tree/master/src/4.advanced_opengl/11.1.anti_aliasing_msaa) 
 [4.11.2(Off-screen MSAA)](https://github.com/chenxy368/LearnOpenGLWithNotes/tree/master/src/4.advanced_opengl/11.2.anti_aliasing_offscreen)
 
+__Chapter 5:__ [Chapter 5](https://github.com/chenxy368/LearnOpenGLWithNotes/tree/master/src/5.advanced_lighting)  
+5.1 advanced light: Blinn-phong [5.1](https://github.com/chenxy368/LearnOpenGLWithNotes/tree/master/src/5.advanced_lighting/1.advanced_lighting)  
+5.2 gamma correction [5.2](https://github.com/chenxy368/LearnOpenGLWithNotes/tree/master/src/5.advanced_lighting/2.gamma_correction)  
+5.3 shadow map: make shadow with depth buffer
+[5.3.1.1(depth buffer)](https://github.com/chenxy368/LearnOpenGLWithNotes/tree/master/src/5.advanced_lighting/3.1.1.shadow_mapping_depth)
+[5.3.1.2(basic)](https://github.com/chenxy368/LearnOpenGLWithNotes/tree/master/src/5.advanced_lighting/3.1.2.shadow_mapping_base)
+[5.3.1.3(bias+face culling+edge checking+PCF anti aliasing)](https://github.com/chenxy368/LearnOpenGLWithNotes/tree/master/src/5.advanced_lighting/3.1.3.shadow_mapping)
+[5.3.2.1(point light basic with cube map)](https://github.com/chenxy368/LearnOpenGLWithNotes/tree/master/src/5.advanced_lighting/3.2.1.point_shadows)
+[5.3.2.2(edge smoothing, PCF)](https://github.com/chenxy368/LearnOpenGLWithNotes/tree/master/src/5.advanced_lighting/3.2.2.point_shadows_soft)  
+5.4 normal mapping: store normal in a texture [5.4](https://github.com/chenxy368/LearnOpenGLWithNotes/tree/master/src/5.advanced_lighting/4.normal_mapping)  
+5.5 parallax mapping: store height in a texture 
+[5.5.1(basic)](https://github.com/chenxy368/LearnOpenGLWithNotes/tree/master/src/5.advanced_lighting/5.1.parallax_mapping)
+[5.5.2(steep parallax mapping to make steep position accurate)](https://github.com/chenxy368/LearnOpenGLWithNotes/tree/master/src/5.advanced_lighting/5.2.steep_parallax_mapping)
+[5.5.3(interpolation to anti-aliasing)](https://github.com/chenxy368/LearnOpenGLWithNotes/tree/master/src/5.advanced_lighting/5.3.parallax_occlusion_mapping)  
+5.6 hdr: lighting intensity out of range [5.6](https://github.com/chenxy368/LearnOpenGLWithNotes/tree/master/src/5.advanced_lighting/6.hdr)  
+5.7 bloom: blur the lighting source [5.7](https://github.com/chenxy368/LearnOpenGLWithNotes/tree/master/src/5.advanced_lighting/7.bloom)  
+5.8 defferd shading: render geometry information for later lighting, coloring... to G-buffer: 
+[5.8.1(basic)](https://github.com/chenxy368/LearnOpenGLWithNotes/tree/master/src/5.advanced_lighting/8.1.deferred_shading)
+[5.8.2(light volumes, limit lighting computing range)](https://github.com/chenxy368/LearnOpenGLWithNotes/tree/master/src/5.advanced_lighting/8.2.deferred_shading_volumes)  
+5.9 ssao: ambient occlusion by depth buffer [5.9](https://github.com/chenxy368/LearnOpenGLWithNotes/tree/master/src/5.advanced_lighting/9.ssao)
+
 
 ## Windows building
 All relevant libraries are found in /libs and all DLLs found in /dlls (pre-)compiled for Windows. 
