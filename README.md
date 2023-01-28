@@ -104,7 +104,7 @@ __Chapter 5:__ [Chapter 5](https://github.com/chenxy368/LearnOpenGLWithNotes/tre
 [5.8.2(light volumes, limit lighting computing range)](https://github.com/chenxy368/LearnOpenGLWithNotes/tree/master/src/5.advanced_lighting/8.2.deferred_shading_volumes)  
 5.9 ssao: ambient occlusion by depth buffer [5.9](https://github.com/chenxy368/LearnOpenGLWithNotes/tree/master/src/5.advanced_lighting/9.ssao)
 
-__Chapter 6:__ [Chapter 6](https://github.com/chenxy368/LearnOpenGLWithNotes/tree/master/src/6.pbr)
+__Chapter 6:__ [Chapter 6](https://github.com/chenxy368/LearnOpenGLWithNotes/tree/master/src/6.pbr)  
 6.1 PBR lighting: [6.1.1(basic)](https://github.com/chenxy368/LearnOpenGLWithNotes/tree/master/src/6.pbr/1.1.lighting)
 [6.1.2(with texture)](https://github.com/chenxy368/LearnOpenGLWithNotes/tree/master/src/6.pbr/1.2.lighting_textured)  
 6.2 IBL: [6.2.1.1(diffuse)](https://github.com/chenxy368/LearnOpenGLWithNotes/tree/master/src/6.pbr/2.1.1.ibl_irradiance_conversion)
