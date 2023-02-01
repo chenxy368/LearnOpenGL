@@ -56,7 +56,7 @@ __Chapter 2:__ [Chapter 2](https://github.com/chenxy368/LearnOpenGLWithNotes/tre
 [2.6.2(Exercise1)](https://github.com/chenxy368/LearnOpenGLWithNotes/tree/master/src/2.lighting/6.multiple_lights_exercise1)
 
 __Chapter 4:__ [Chapter 4](https://github.com/chenxy368/LearnOpenGLWithNotes/tree/master/src/4.advanced_opengl)  
-4.1 depth test: render closer fragment: [4.1.1(Enable)](https://github.com/chenxy368/LearnOpenGLWithNotes/tree/master/src/4.advanced_opengl/1.1.depth_testing)  
+4.1 depth test: render closer fragment: [4.1.1(Enable)](https://github.com/chenxy368/LearnOpenGLWithNotes/tree/master/src/4.advanced_opengl/1.1.depth_testing)
 [4.1.2(Check z-buffer)](https://github.com/chenxy368/LearnOpenGLWithNotes/tree/master/src/4.advanced_opengl/1.2.depth_testing_view)
 4.2 stencil test: mask ROI [4.2](https://github.com/chenxy368/LearnOpenGLWithNotes/tree/master/src/4.advanced_opengl/2.stencil_testing)  
 4.3 blending: transparent and obstacle fragment overlap  
