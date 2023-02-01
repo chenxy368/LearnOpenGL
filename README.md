@@ -58,8 +58,8 @@ __Chapter 2:__ [Chapter 2](https://github.com/chenxy368/LearnOpenGLWithNotes/tre
 __Chapter 4:__ [Chapter 4](https://github.com/chenxy368/LearnOpenGLWithNotes/tree/master/src/4.advanced_opengl)  
 4.1 depth test: render closer fragment: [4.1.1(Enable)](https://github.com/chenxy368/LearnOpenGLWithNotes/tree/master/src/4.advanced_opengl/1.1.depth_testing)
 [4.1.2(Check z-buffer)](https://github.com/chenxy368/LearnOpenGLWithNotes/tree/master/src/4.advanced_opengl/1.2.depth_testing_view)
-4.2 stencil test: mask ROI [4.2](https://github.com/chenxy368/LearnOpenGLWithNotes/tree/master/src/4.advanced_opengl/2.stencil_testing)
-4.3 blending: transparent and obstacle fragment overlap 
+4.2 stencil test: mask ROI [4.2](https://github.com/chenxy368/LearnOpenGLWithNotes/tree/master/src/4.advanced_opengl/2.stencil_testing)  
+4.3 blending: transparent and obstacle fragment overlap  
 [4.3.1(Discard)](https://github.com/chenxy368/LearnOpenGLWithNotes/tree/master/src/4.advanced_opengl/3.1.blending_discard) 
 [4.3.2(Blending sorted fragment)](https://github.com/chenxy368/LearnOpenGLWithNotes/tree/master/src/4.advanced_opengl/3.2.blending_sort)  
 4.4 face culling: discard front or back faces [4.4](https://github.com/chenxy368/LearnOpenGLWithNotes/tree/master/src/4.advanced_opengl/4.face_culling_exercise1)  
